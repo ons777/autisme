@@ -1,0 +1,109 @@
+import 'package:flutter/material.dart';
+
+
+class CreateAccountPage extends StatelessWidget {
+  const CreateAccountPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/background.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Center(
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.8,
+            decoration: const BoxDecoration(
+              color: Color.fromRGBO(255, 255, 255, 0.7),
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+            ),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: Image.asset(
+                          'assets/logo.jpg',
+                          width: 150,
+                        ),
+                      ),
+                    ),
+                    const Text(
+                      'Créer un compte',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const TextField(
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        hintText: 'Entrer votre Email',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const TextField(
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        hintText: 'Entrer votre Mot de Pass',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Handle reset password logic
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(255, 7, 155, 205),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                          elevation: 5,
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'créer un compte',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context); // Navigate back to the previous page
+                      },
+                      child: Image.asset(
+                        'assets/back_button_image.png', // Replace with your image asset path
+                        width: 24, // Adjust the width as needed
+                        height: 24, // Adjust the height as needed
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
