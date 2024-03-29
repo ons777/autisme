@@ -53,6 +53,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+  
     - assets/background.jpg 
     - assets/logo.jpg
     - assets/conseil.png

@@ -58,8 +58,6 @@ class _CalendarPageState extends State<CalendarPage> {
     return null;
   }
 
-  String? _eventNameError;
-  String? _eventLocationError;
 
 
   @override
