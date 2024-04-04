@@ -1,11 +1,29 @@
 import 'package:flutter/material.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:autisme/login.dart';
 
 class CreateAccountPage extends StatelessWidget {
   const CreateAccountPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController emailController = TextEditingController();
+    final TextEditingController passwordController = TextEditingController();
+    final TextEditingController nameController = TextEditingController();
+
+    bool isValidEmail(String email) {
+      final emailRegExp = RegExp(r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$");
+      return emailRegExp.hasMatch(email);
+    }
+
+    bool isValidPassword(String password) {
+      final passwordRegExp = RegExp(r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$");
+      return passwordRegExp.hasMatch(password);
+    }
+
+    final CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -45,27 +63,88 @@ class CreateAccountPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const TextField(
-                      decoration: InputDecoration(
+                    TextField(
+                      controller: emailController,
+                      decoration: const InputDecoration(
                         labelText: 'Email',
                         hintText: 'Entrer votre Email',
                         border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const TextField(
+                    TextField(
+                      controller: passwordController,
                       obscureText: true,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Password',
-                        hintText: 'Entrer votre Mot de Pass',
+                        hintText: 'Entrer votre Mot de Passe',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Nom',
+                        hintText: 'Entrer votre Nom',
                         border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 20),
                     Center(
                       child: ElevatedButton(
-                        onPressed: () {
-                          // Handle reset password logic
+                        onPressed: () async {
+                          final email = emailController.text;
+                          final password = passwordController.text;
+                          final name = nameController.text;
+
+                          if (!isValidEmail(email)) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Email invalide'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+
+                          if (!isValidPassword(password)) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Mot de passe invalide'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+
+                          try {
+                            final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                              email: email,
+                              password: password,
+                            );
+
+                            final user = User(
+                              uid: userCredential.user!.uid,
+                              email: email,
+                              name: name,
+                            );
+
+                            await usersCollection.doc(user.uid).set(user.toMap());
+
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const LoginPage()),
+                            );
+                          } catch (error) {
+                            String errorMessage = error.toString();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(errorMessage),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromARGB(255, 7, 155, 205),
@@ -77,7 +156,7 @@ class CreateAccountPage extends StatelessWidget {
                           shadowColor: Colors.black,
                         ),
                         child: const Text(
-                          'créer un compte',
+                          'Créer un compte',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -92,9 +171,9 @@ class CreateAccountPage extends StatelessWidget {
                         Navigator.pop(context); // Navigate back to the previous page
                       },
                       child: Image.asset(
-                        'assets/back_button_image.png', // Replace with your image asset path
-                        width: 24, // Adjust the width as needed
-                        height: 24, // Adjust the height as needed
+                        'assets/back_button_image.png',
+                        width: 24,
+                        height: 24,
                       ),
                     ),
                   ],
@@ -105,5 +184,25 @@ class CreateAccountPage extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class User {
+  final String uid;
+  final String email;
+  final String? name;
+
+  User({
+    required this.uid,
+    required this.email,
+    this.name,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'uid': uid,
+      'email': email,
+      'name': name,
+    };
   }
 }

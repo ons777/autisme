@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "455891302780",
+    "project_id": "autisme-2e708",
+    "storage_bucket": "autisme-2e708.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:455891302780:android:f1b178ecaa48b2a7284cf9",
+        "android_client_info": {
+          "package_name": "com.example.autisme"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLH25oKwzDUYRvjZsnD1Nf8ljxy0RfdLo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

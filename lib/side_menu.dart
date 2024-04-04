@@ -1,29 +1,18 @@
+import 'package:autisme/settings.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:autisme/profile.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+class SideMenuPage extends StatelessWidget {
+  final String userEmail;
+  final String userName;
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const SideMenuPage({
+    required this.userEmail,
+    required this.userName,
+    Key? key,
+  }) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,40 +30,48 @@ class _MyHomePageState extends State<MyHomePage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            const UserAccountsDrawerHeader(
-              accountName: Text('Your Name'),
-              accountEmail: Text('your_email@example.com'),
-              currentAccountPicture: CircleAvatar(
+            UserAccountsDrawerHeader(
+              accountName: Text(
+                userName.isEmpty ? 'Your Name' : userName,
+                style: const TextStyle(color: Colors.black),
+              ),
+              accountEmail: Text(
+                userEmail.isEmpty ? 'your_email@example.com' : userEmail,
+                style: const TextStyle(color: Colors.black),
+              ),
+              currentAccountPicture: const CircleAvatar(
                 backgroundImage: AssetImage('assets/background.jpg'),
               ),
-              decoration: BoxDecoration(
-                color: Colors.pink,
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/b1.jpg'),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Welcome'),
-              onTap: () {
-                
-              },
+              onTap: () {},
             ),
-
             ListTile(
               leading: const Icon(Icons.verified_user),
               title: const Text('Profile'),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>  const ProfilePage()),
+                  MaterialPageRoute(builder: (context) => const UserProfile()),
                 );
               },
             ),
-
             ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Settings'),
               onTap: () {
-                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage()),
+                );
               },
             ),
             ListTile(

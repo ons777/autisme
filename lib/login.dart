@@ -1,41 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:autisme/side_menu.dart';
 import 'package:autisme/forgot_password.dart';
 import 'package:autisme/create_account.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Cute Login Page',
-      theme: ThemeData(
-        primaryColor: Colors.pinkAccent, // Change primary color to pink
-        colorScheme: ColorScheme.fromSwatch(
-          primarySwatch: Colors.teal, // Use teal color swatch for color scheme
-        ).copyWith(secondary: Colors.tealAccent), // Use teal accent color
-        scaffoldBackgroundColor: Colors.white, // Change scaffold background color to white
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: const LoginPage(),
-    );
-  }
-}
-
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  String _userEmail = '';
+  String _userName = '';
 
   @override
   Widget build(BuildContext context) {
@@ -43,15 +26,15 @@ class _LoginPageState extends State<LoginPage> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/background.jpg'), // Change this to your image asset path
-            fit: BoxFit.cover, // Adjust the image fit as needed
+            image: AssetImage('assets/background.jpg'),
+            fit: BoxFit.cover,
           ),
         ),
         child: Center(
           child: Container(
-            width: MediaQuery.of(context).size.width * 0.8, // Adjust width as needed
+            width: MediaQuery.of(context).size.width * 0.8,
             decoration: const BoxDecoration(
-              color: Color.fromRGBO(255, 255, 255, 0.7), // Transparent white color
+              color: Color.fromRGBO(255, 255, 255, 0.7),
               borderRadius: BorderRadius.all(Radius.circular(20)),
             ),
             child: SingleChildScrollView(
@@ -66,8 +49,8 @@ class _LoginPageState extends State<LoginPage> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 20),
                           child: Image.asset(
-                            'assets/logo.jpg', // Path to your logo image
-                            width: 150, // Adjust the width as needed
+                            'assets/logo.jpg',
+                            width: 150,
                           ),
                         ),
                       ),
@@ -81,6 +64,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 10),
                       TextFormField(
+                        controller: _emailController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Veuillez entrer votre email';
@@ -110,6 +94,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 10),
                       TextFormField(
+                        controller: _passwordController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Veuillez entrer votre mot de passe';
@@ -152,9 +137,31 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(height: 10),
                       Center(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              // Handle form submission
+                              try {
+                                final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+                                  email: _emailController.text.trim(),
+                                  password: _passwordController.text.trim(),
+                                );
+
+                                // Fetch user data after successful login
+                                await fetchUserData(userCredential.user!.uid);
+
+                                // Navigate to the side menu page upon successful login
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SideMenuPage(
+                                      userEmail: _userEmail,
+                                      userName: _userName,
+                                    ),
+                                  ),
+                                );
+                              } catch (e) {
+                                print('Failed to sign in: $e');
+                                // Handle sign-in errors (e.g., display error message)
+                              }
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -205,5 +212,23 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  Future<void> fetchUserData(String userId) async {
+    try {
+      final DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await FirebaseFirestore.instance.collection('users').doc(userId).get();
+
+      if (snapshot.exists) {
+        setState(() {
+          _userEmail = snapshot.data()!['email'];
+          _userName = snapshot.data()!['name'];
+        });
+      } else {
+        print('User document does not exist');
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+    }
   }
 }

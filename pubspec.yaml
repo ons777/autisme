@@ -38,13 +38,14 @@ dependencies:
   http: 1.2.1
 
   # Remplacez les dépendances MongoDB par les dépendances Firebase appropriées
-  firebase_core: ^2.27.1
-  firebase_auth: ^4.17.9
-  cloud_firestore: ^4.15.9
+  firebase_core: ^2.28.0
+  firebase_auth: ^4.19.0
+  cloud_firestore: ^4.16.0
 
 
 
   mysql1: any
+  cached_network_image: ^3.3.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -85,3 +86,4 @@ flutter:
     - assets/7.jpg
     - assets/8.jpg
     - assets/9.jpg
+    - assets/b1.jpg

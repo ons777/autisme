@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:autisme/login.dart';
 
 class ForgotPasswordPage extends StatelessWidget {
   const ForgotPasswordPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController emailController = TextEditingController();
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -53,6 +57,7 @@ class ForgotPasswordPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     TextFormField(
+                      controller: emailController,
                       decoration: const InputDecoration(
                         hintText: 'Entrer votre Email',
                         enabledBorder: OutlineInputBorder(
@@ -68,8 +73,24 @@ class ForgotPasswordPage extends StatelessWidget {
                     const SizedBox(height: 20),
                     Center(
                       child: ElevatedButton(
-                        onPressed: () {
-                          // Handle reset password logic
+                        onPressed: () async {
+                          try {
+                            await FirebaseAuth.instance.sendPasswordResetEmail(
+                              email: emailController.text.trim(),
+                            );
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const LoginPage()),
+                            );
+                          } catch (e) {
+                            print('Failed to send password reset email: $e');
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Failed to send password reset email'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromARGB(255, 7, 155, 205),
