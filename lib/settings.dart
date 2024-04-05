@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
+
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
@@ -13,13 +15,13 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Settings'),
+        title: const Text('Settings'),
       ),
       body: ListView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         children: <Widget>[
           SwitchListTile(
-            title: Text('Enable Notifications'),
+            title: const Text('Enable Notifications'),
             value: notificationEnabled,
             onChanged: (bool value) {
               setState(() {
@@ -28,7 +30,7 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
           ListTile(
-            title: Text('Notification Frequency'),
+            title: const Text('Notification Frequency'),
             trailing: DropdownButton<int>(
               value: notificationFrequency,
               onChanged: (int? value) {
@@ -38,7 +40,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   });
                 }
               },
-              items: <DropdownMenuItem<int>>[
+              items: const <DropdownMenuItem<int>>[
                 DropdownMenuItem<int>(
                   value: 1,
                   child: Text('Every hour'),

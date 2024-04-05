@@ -1,12 +1,12 @@
+import 'package:autisme/create_account.dart';
+import 'package:autisme/forgot_password.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:autisme/side_menu.dart';
-import 'package:autisme/forgot_password.dart';
-import 'package:autisme/create_account.dart';
+import 'package:autisme/face.dart'; // Importing the FacePage
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -17,8 +17,6 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  String _userEmail = '';
-  String _userName = '';
 
   @override
   Widget build(BuildContext context) {
@@ -148,14 +146,11 @@ class _LoginPageState extends State<LoginPage> {
                                 // Fetch user data after successful login
                                 await fetchUserData(userCredential.user!.uid);
 
-                                // Navigate to the side menu page upon successful login
+                                // Navigate to the face page upon successful login
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => SideMenuPage(
-                                      userEmail: _userEmail,
-                                      userName: _userName,
-                                    ),
+                                    builder: (context) => const FacePage(),
                                   ),
                                 );
                               } catch (e) {
@@ -221,8 +216,6 @@ class _LoginPageState extends State<LoginPage> {
 
       if (snapshot.exists) {
         setState(() {
-          _userEmail = snapshot.data()!['email'];
-          _userName = snapshot.data()!['name'];
         });
       } else {
         print('User document does not exist');
