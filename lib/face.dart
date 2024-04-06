@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, library_private_types_in_public_api
+
 import 'package:autisme/activites.dart';
 import 'package:autisme/forum.dart';
 import 'package:autisme/profile.dart';
