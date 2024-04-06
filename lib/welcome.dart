@@ -53,7 +53,7 @@ class WelcomePage extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 40),
                       child: Text(
-                        'Bienvenue dans notre application conçue spécifiquement pour les enfants autistes et leurs parents. Notre application vise à soutenir les enfants autistes dans le maintien de leurs routines et à leur fournir un sentiment de structure. Les parents peuvent utiliser lapplication pour vérifier facilement leurs enfants et se connecter avec dautres parents faisant face à des défis similaires. Ensemble, nous pouvons créer une communauté de soutien et permettre aux familles de naviguer à travers les expériences uniques délever des enfants avec autisme.',
+                        'Bienvenue dans notre application conçue spécifiquement pour les enfants autistes et leurs parents. Notre application vise à soutenir les enfants autistes dans le maintien de leurs routines et à leur fournir un sentiment de structure. Les parents peuvent utiliser l’application pour vérifier facilement leurs enfants et se connecter avec d’autres parents faisant face à des défis similaires. Ensemble, nous pouvons créer une communauté de soutien et permettre aux familles de naviguer à travers les expériences uniques d’élever des enfants avec autisme.',
                         style: TextStyle(
                           color: Color.fromARGB(255, 24, 92, 186),
                           fontSize: 17,
