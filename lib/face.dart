@@ -2,9 +2,11 @@ import 'package:autisme/activites.dart';
 import 'package:autisme/forum.dart';
 import 'package:autisme/profile.dart';
 import 'package:autisme/settings.dart';
+import 'package:autisme/welcome.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:autisme/calender.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,6 +14,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +46,7 @@ class FacePage extends StatelessWidget {
         ),
       ),
       drawer: const Drawer(
-        child: SideMenuContent(userEmail: '', userName: '',), // Use the SideMenuContent widget here
+        child: SideMenuContent(),
       ),
       body: Stack(
         children: [
@@ -114,11 +117,45 @@ class FacePage extends StatelessWidget {
   }
 }
 
-class SideMenuContent extends StatelessWidget {
-  const SideMenuContent({super.key, required this.userEmail, required this.userName});
+class SideMenuContent extends StatefulWidget {
+  const SideMenuContent({super.key});
+  
 
-  final String userEmail;
-  final String userName;
+  @override
+  _SideMenuContentState createState() => _SideMenuContentState();
+}
+
+class _SideMenuContentState extends State<SideMenuContent> {
+  String userName = '';
+  String userEmail = '';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserInfo();
+  }
+
+  Future<void> fetchUserInfo() async {
+    try {
+      final User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('email', isEqualTo: user.email)
+            .get();
+
+        if (querySnapshot.docs.isNotEmpty) {
+          final userData = querySnapshot.docs.first.data();
+          setState(() {
+            userName = userData['name'];
+            userEmail = user.email!;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error fetching user info: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,11 +165,11 @@ class SideMenuContent extends StatelessWidget {
         children: <Widget>[
           UserAccountsDrawerHeader(
             accountName: Text(
-              userName.isEmpty ? 'Your Name' : userName,
+              userName.isNotEmpty ? userName : 'Loading...',
               style: const TextStyle(color: Colors.black),
             ),
             accountEmail: Text(
-              userEmail.isEmpty ? 'your_email@example.com' : userEmail,
+              userEmail.isNotEmpty ? userEmail : 'Loading...',
               style: const TextStyle(color: Colors.black),
             ),
             currentAccountPicture: const CircleAvatar(
@@ -148,7 +185,12 @@ class SideMenuContent extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.handshake_rounded),
             title: const Text('Welcome'),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const WelcomePage()),
+              );
+            },
           ),
           ListTile(
             leading: const Icon(Icons.verified_user),
@@ -171,21 +213,14 @@ class SideMenuContent extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.border_color),
-            title: const Text('Feedback'),
-            onTap: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          ListTile(
             leading: const Icon(Icons.exit_to_app),
             title: const Text('Logout'),
             onTap: () {
-              FirebaseAuth.instance.signOut(); // Sign out the user
-              Navigator.pushReplacement( // Navigate to the login page
+              FirebaseAuth.instance.signOut();
+              Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const LoginPage()));
-
+                MaterialPageRoute(builder: (context) => const LoginPage()),
+              );
             },
           ),
         ],
