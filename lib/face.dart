@@ -1,7 +1,7 @@
-// ignore_for_file: avoid_print, library_private_types_in_public_api
-
+import 'dart:math';
+import 'package:autisme/PublicChatPage.dart';
 import 'package:autisme/activites.dart';
-import 'package:autisme/forum.dart';
+import 'package:autisme/login.dart';
 import 'package:autisme/profile.dart';
 import 'package:autisme/settings.dart';
 import 'package:autisme/welcome.dart';
@@ -16,7 +16,6 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
 
   @override
   Widget build(BuildContext context) {
@@ -114,6 +113,30 @@ class FacePage extends StatelessWidget {
         ],
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
+        onTap: (int index) {
+          switch (index) {
+            case 0:
+              // Navigate to Home
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FacePage()),
+              );
+              break;
+            case 1:
+              // Navigate to Chat
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ChatPage()),
+              );
+              break;
+            case 2:
+              // Navigate to Resources
+              break;
+            case 3:
+              // Navigate to Profile
+              break;
+          }
+        },
       ),
     );
   }
@@ -121,7 +144,6 @@ class FacePage extends StatelessWidget {
 
 class SideMenuContent extends StatefulWidget {
   const SideMenuContent({super.key});
-  
 
   @override
   _SideMenuContentState createState() => _SideMenuContentState();
@@ -136,6 +158,52 @@ class _SideMenuContentState extends State<SideMenuContent> {
     super.initState();
     fetchUserInfo();
   }
+
+  // List of profile picture file names
+  List<String> profilePictures = [
+    'gnome1.jpg',
+    'gnome2.jpg',
+    'gnome3.jpg',
+    'gnome4.jpg',
+    'gnome5.jpg',
+    'gnome6.jpg',
+    'gnome7.jpg',
+    'gnome8.jpg',
+  ];
+
+  // Function to select a random profile picture
+  String getRandomProfilePicture() {
+    Random random = Random();
+    int index = random.nextInt(profilePictures.length);
+    return profilePictures[index];
+  }
+
+  // Function to handle user account creation
+  Future<void> createUserAccount() async {
+  try {
+    // Get the current user
+    final User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Check if the user already has a profile picture assigned
+      final DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (!snapshot.exists || snapshot.data()?['profilePictureUrl'] == null) {
+        // Generate a random profile picture URL only if it's not already set
+        String profilePictureUrl = getRandomProfilePicture();
+        // Update the user's profile picture URL in the database
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'profilePictureUrl': profilePictureUrl,
+        }, SetOptions(merge: true));
+      }
+    }
+  } catch (e) {
+    print('Error creating user account: $e');
+  }
+}
+
 
   Future<void> fetchUserInfo() async {
     try {
@@ -159,6 +227,32 @@ class _SideMenuContentState extends State<SideMenuContent> {
     }
   }
 
+  Future<String> fetchUserProfilePicture() async {
+    try {
+      final User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final DocumentSnapshot<Map<String, dynamic>> snapshot =
+            await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+
+        if (snapshot.exists) {
+          // Check if the user has a profile picture set in the database
+          final String? profilePicture = snapshot.data()?['profilePicture'];
+          if (profilePicture != null && profilePicture.isNotEmpty) {
+            return profilePicture; // Return user profile picture URL
+          }
+        }
+      }
+    } catch (e) {
+      print('Error fetching user profile picture: $e');
+    }
+
+    // If user profile picture is not found, return a random one from the list
+    String randomPicture = getRandomProfilePicture();
+    return 'assets/$randomPicture';
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -174,8 +268,21 @@ class _SideMenuContentState extends State<SideMenuContent> {
               userEmail.isNotEmpty ? userEmail : 'Loading...',
               style: const TextStyle(color: Colors.black),
             ),
-            currentAccountPicture: const CircleAvatar(
-              backgroundImage: AssetImage('assets/background.jpg'),
+            currentAccountPicture: FutureBuilder<String>(
+              future: fetchUserProfilePicture(), // Fetch user profile picture
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else if (snapshot.hasData) {
+                  return CircleAvatar(
+                    backgroundImage: AssetImage(snapshot.data!), // Display user profile picture
+                  );
+                } else {
+                  return const CircleAvatar(
+                    backgroundImage: AssetImage('assets/default_profile_picture.jpg'), // Placeholder image
+                  );
+                }
+              },
             ),
             decoration: const BoxDecoration(
               image: DecorationImage(

@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+import 'dart:math'; // Import the 'dart:math' library for using the Random class
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -119,17 +119,19 @@ class CreateAccountPage extends StatelessWidget {
                             );
                             return;
                           }
-
                           try {
                             final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
                               email: email,
                               password: password,
                             );
 
+                            final profilePictureUrl = getRandomProfilePicture(); // Generate random profile picture URL
+
                             final user = User(
                               uid: userCredential.user!.uid,
                               email: email,
                               name: name,
+                              profilePictureUrl: profilePictureUrl, // Set profile picture URL
                             );
 
                             await usersCollection.doc(user.uid).set(user.toMap());
@@ -187,17 +189,35 @@ class CreateAccountPage extends StatelessWidget {
       ),
     );
   }
+
+  String getRandomProfilePicture() {
+    final List<String> profilePictures = [
+      'gnome1.jpg',
+      'gnome2.jpg',
+      'gnome3.jpg',
+      'gnome4.jpg',
+      'gnome5.jpg',
+      'gnome6.jpg',
+      'gnome7.jpg',
+      'gnome8.jpg',
+    ];
+    final Random random = Random();
+    final int index = random.nextInt(profilePictures.length);
+    return 'assets/${profilePictures[index]}';
+  }
 }
 
 class User {
   final String uid;
   final String email;
   final String? name;
+  final String? profilePictureUrl;
 
   User({
     required this.uid,
     required this.email,
     this.name,
+    this.profilePictureUrl,
   });
 
   Map<String, dynamic> toMap() {
@@ -205,6 +225,7 @@ class User {
       'uid': uid,
       'email': email,
       'name': name,
+      'profilePictureUrl': profilePictureUrl,
     };
   }
 }
