@@ -1,8 +1,7 @@
-// ignore_for_file: avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,18 +10,18 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: UserProfile(), // Display the UserProfile widget as the home page
+      home: UserProfile(),
     );
   }
 }
 
 class UserProfile extends StatefulWidget {
-  const UserProfile({super.key});
+  const UserProfile({Key? key}) : super(key: key);
 
   @override
   State<UserProfile> createState() => _UserProfileState();
@@ -31,16 +30,17 @@ class UserProfile extends StatefulWidget {
 class _UserProfileState extends State<UserProfile> {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  String firstName = ''; // Removed initial value
-  String lastName = ''; // Removed initial value
-  int age = 0; // Removed initial value
-  String email = ''; // Removed initial value
-  String sexe = ''; // Removed initial value
+  String firstName = '';
+  String lastName = '';
+  int age = 0;
+  String email = '';
+  String sexe = '';
+  String profileImageUrl = '';
 
   @override
   void initState() {
     super.initState();
-    getUserData('9Ksk5CiL3veqw1KHWiWh'); // Replace with actual user ID
+    getUserData('9Ksk5CiL3veqw1KHWiWh');
   }
 
   Future<void> getUserData(String userId) async {
@@ -50,17 +50,31 @@ class _UserProfileState extends State<UserProfile> {
     if (docSnapshot.exists) {
       final data = docSnapshot.data();
       setState(() {
-        firstName = data?['firstName'] ?? ''; // Handle missing data with empty string
+        firstName = data?['firstName'] ?? '';
         lastName = data?['lastName'] ?? '';
-        age = data?['age']?.toInt() ?? 0; // Convert age to int and handle null values
+        age = data?['age']?.toInt() ?? 0;
         email = data?['email'] ?? '';
         sexe = data?['sexe'] ?? '';
+        profileImageUrl = data?['profileImageUrl'] ?? '';
       });
-      print('Fetched user data: $data'); // Print retrieved data to console for debugging
+      print('User data retrieved: $data');
     } else {
       print('No user data found!');
-      // Handle the case where the document doesn't exist
     }
+  }
+
+  Future<void> updateUserField(String fieldName, String newValue) async {
+    final docRef = firestore.collection('users').doc('9Ksk5CiL3veqw1KHWiWh');
+    await docRef.update({fieldName: newValue});
+    setState(() {
+      if (fieldName == 'age') {
+        age = int.parse(newValue);
+      } else if (fieldName == 'sexe') {
+        sexe = newValue;
+      } else if (fieldName == 'email') {
+        email = newValue;
+      }
+    });
   }
 
   Widget buildInfoCard(String title, String content) {
@@ -81,9 +95,59 @@ class _UserProfileState extends State<UserProfile> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Text(
-              content,
-              style: const TextStyle(fontSize: 16.0),
+            Row(
+              children: [
+                Text(
+                  content,
+                  style: const TextStyle(fontSize: 16.0),
+                ),
+                IconButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Modifier la valeur'),
+                        content: StatefulBuilder(
+                          builder:
+                              (BuildContext context, StateSetter setState) {
+                            String newValue =
+                                ''; // Nouvelle valeur saisie par l'utilisateur
+
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextField(
+                                  autofocus: true,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Nouvelle valeur',
+                                  ),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      newValue = value;
+                                    });
+                                  },
+                                ),
+                                const SizedBox(height: 10),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    if (newValue.isNotEmpty) {
+                                      await updateUserField(
+                                          title.toLowerCase(), newValue);
+                                      Navigator.pop(context);
+                                    }
+                                  },
+                                  child: const Text('Enregistrer'),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.edit),
+                ),
+              ],
             ),
           ],
         ),
@@ -94,59 +158,73 @@ class _UserProfileState extends State<UserProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.pinkAccent.shade100,
       appBar: AppBar(
-        backgroundColor: Colors.pinkAccent.shade700,
-        title: const Text(
-          'My Cute Profile',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text('My Cute Profile'),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Profile picture with rounded corners
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: CircleAvatar(
-                radius: 50.0,
-              ),
+            const SizedBox(height: 20.0),
+            CircleAvatar(
+              radius: 70.0,
+              backgroundImage: NetworkImage(profileImageUrl),
             ),
-            // Username section
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.person,
-                  color: Colors.pinkAccent.shade700,
-                  size: 16.0,
-                ),
-                const SizedBox(width: 8.0),
-                Text(
-                  '$firstName $lastName',
-                  style: const TextStyle(fontSize: 18.0),
-                ),
-              ],
+            IconButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Modifier la photo de profil'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Galerie'),
+                        ),
+                        const SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            final XFile? image = await ImagePicker()
+                                .pickImage(source: ImageSource.camera);
+                            if (image != null) {
+                              // Implement logic to handle captured image
+                            }
+                          },
+                          child: const Text('Caméra'),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.edit),
             ),
-            // Divider with a cute pattern
-            Divider(
-              color: Colors.pinkAccent.shade400,
+            const SizedBox(height: 10.0),
+            Text(
+              '$firstName $lastName',
+              style:
+                  const TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+            ),
+            const Divider(
+              color: Colors.grey,
               thickness: 1.0,
-              indent: 30.0,
-              endIndent: 30.0,
+              indent: 50.0,
+              endIndent: 50.0,
               height: 20.0,
             ),
-            // Info cards with rounded corners
             Padding(
-              padding: const EdgeInsets.all(8.0
-),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
                 children: [
-                  buildInfoCard('Age', age.toString()), // Call the renamed function
+                  buildInfoCard('Age', age.toString()),
                   const SizedBox(height: 8.0),
                   buildInfoCard('Email', email),
                   const SizedBox(height: 8.0),
-                  buildInfoCard('Sexe', sexe), // Assuming 'Sexe' is the intended label
+                  buildInfoCard('Sexe', sexe),
                 ],
               ),
             ),
