@@ -1,14 +1,18 @@
-// ignore_for_file: library_private_types_in_public_api
+import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Importez le package Firestore
 import 'choix.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +28,7 @@ class MyApp extends StatelessWidget {
 }
 
 class FormulairePage extends StatefulWidget {
-  const FormulairePage({super.key});
+  const FormulairePage({Key? key}) : super(key: key);
 
   @override
   _FormulairePageState createState() => _FormulairePageState();
@@ -32,9 +36,13 @@ class FormulairePage extends StatefulWidget {
 
 class _FormulairePageState extends State<FormulairePage> {
   final _formKey = GlobalKey<FormState>();
+  final FirebaseFirestore _firestore =
+      FirebaseFirestore.instance; // Initialisation de Firestore
 
   String _pseudo = '';
   String _genre = '';
+  String _randomCode = '';
+  bool _isObscure = true;
 
   @override
   Widget build(BuildContext context) {
@@ -45,8 +53,8 @@ class _FormulairePageState extends State<FormulairePage> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image:
-                AssetImage("assets/background.jpg"), // Chemin de votre image de fond
+            image: AssetImage(
+                "assets/background.jpg"), // Chemin de votre image de fond
             fit: BoxFit.cover,
           ),
         ),
@@ -70,46 +78,7 @@ class _FormulairePageState extends State<FormulairePage> {
                   },
                   onSaved: (value) {
                     _pseudo = value!;
-                  },
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Email',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer votre Email';
-                    }
-                    // Vérification de format email
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                        .hasMatch(value)) {
-                      return 'Veuillez entrer un email valide';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                  },
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Mot de passe',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer votre mot de passe';
-                    }
-                    // Limiter la longueur du mot de passe à 8 caractères
-                    if (value.length >= 8) {
-                      return 'Le mot de passe ne doit pas infirieur à 8 caractères';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
+                    _randomCode = value!;
                   },
                 ),
                 const SizedBox(height: 20),
@@ -141,15 +110,32 @@ class _FormulairePageState extends State<FormulairePage> {
                 const SizedBox(height: 20),
                 Center(
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
 
-                        // Naviguer vers la page de choix avec le pseudo
+                        // Générer un code aléatoire
+                        _randomCode = generateRandomCode();
+
+                        // Enregistrement des données dans Firestore
+                        DocumentReference docRef =
+                            await _firestore.collection('users').add({
+                          'pseudo': _pseudo,
+                          'code_aléatoire': _randomCode,
+                          'genre': _genre,
+                        });
+
+                        String docId = docRef
+                            .id; // Récupération de l'ID du document ajouté
+
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => Choix(
+                              userEmail:
+                                  '', // Remplacez par la valeur appropriée
+                              userName:
+                                  '', // Remplacez par la valeur appropriée
                               informations: {
                                 "pseudo": _pseudo,
                               },
@@ -167,5 +153,14 @@ class _FormulairePageState extends State<FormulairePage> {
         ),
       ),
     );
+  }
+
+  String generateRandomCode() {
+    const characters =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final random = Random();
+    final code = String.fromCharCodes(Iterable.generate(
+        6, (_) => characters.codeUnitAt(random.nextInt(characters.length))));
+    return code;
   }
 }
