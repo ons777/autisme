@@ -3,7 +3,7 @@ import 'dart:math'; // Import the 'dart:math' library for using the Random class
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:autisme/login.dart';
+import 'login.dart';
 
 class CreateAccountPage extends StatelessWidget {
   const CreateAccountPage({super.key});
@@ -15,16 +15,19 @@ class CreateAccountPage extends StatelessWidget {
     final TextEditingController nameController = TextEditingController();
 
     bool isValidEmail(String email) {
-      final emailRegExp = RegExp(r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$");
+      final emailRegExp = RegExp(
+          r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$");
       return emailRegExp.hasMatch(email);
     }
 
     bool isValidPassword(String password) {
-      final passwordRegExp = RegExp(r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$");
+      final passwordRegExp = RegExp(
+          r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$");
       return passwordRegExp.hasMatch(password);
     }
 
-    final CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
+    final CollectionReference usersCollection =
+        FirebaseFirestore.instance.collection('users');
 
     return Scaffold(
       body: Container(
@@ -47,6 +50,16 @@ class CreateAccountPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                     GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Icon(
+                                  Icons.arrow_back,
+                                  size: 24,
+                                  color: Colors.black,
+                                ),
+                              ),
                     Center(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
@@ -113,32 +126,39 @@ class CreateAccountPage extends StatelessWidget {
                           if (!isValidPassword(password)) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Mot de passe invalide'),
+                                content: Text(
+                                    'Le mot de passe doit contenir au moins une lettre majuscule, une lettre minuscule, un chiffre, un caractère spécial et avoir une longueur minimale de 8 caractères.'),
                                 backgroundColor: Colors.red,
                               ),
                             );
                             return;
                           }
                           try {
-                            final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                            final userCredential = await FirebaseAuth.instance
+                                .createUserWithEmailAndPassword(
                               email: email,
                               password: password,
                             );
 
-                            final profilePictureUrl = getRandomProfilePicture(); // Generate random profile picture URL
+                            final profilePictureUrl =
+                                getRandomProfilePicture(); // Generate random profile picture URL
 
                             final user = User(
                               uid: userCredential.user!.uid,
                               email: email,
                               name: name,
-                              profilePictureUrl: profilePictureUrl, // Set profile picture URL
+                              profilePictureUrl:
+                                  profilePictureUrl, // Set profile picture URL
                             );
 
-                            await usersCollection.doc(user.uid).set(user.toMap());
+                            await usersCollection
+                                .doc(user.uid)
+                                .set(user.toMap());
 
                             Navigator.pushReplacement(
                               context,
-                              MaterialPageRoute(builder: (context) => const LoginPage()),
+                              MaterialPageRoute(
+                                  builder: (context) => const LoginPage()),
                             );
                           } catch (error) {
                             String errorMessage = error.toString();
@@ -151,11 +171,13 @@ class CreateAccountPage extends StatelessWidget {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(255, 7, 155, 205),
+                          backgroundColor:
+                              const Color.fromARGB(255, 7, 155, 205),
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.all(Radius.circular(20)),
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 50, vertical: 15),
                           elevation: 5,
                           shadowColor: Colors.black,
                         ),
@@ -169,17 +191,7 @@ class CreateAccountPage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context); // Navigate back to the previous page
-                      },
-                      child: Image.asset(
-                        'assets/back_button_image.png',
-                        width: 24,
-                        height: 24,
-                      ),
-                    ),
+                    
                   ],
                 ),
               ),
