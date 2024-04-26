@@ -1,34 +1,41 @@
-import 'dart:math'; // Import the 'dart:math' library for using the Random class
-
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login.dart';
 
-class CreateAccountPage extends StatelessWidget {
-  const CreateAccountPage({super.key});
+class CreateAccountPage extends StatefulWidget {
+  const CreateAccountPage({Key? key}) : super(key: key);
+
+  @override
+  _CreateAccountPageState createState() => _CreateAccountPageState();
+}
+
+class _CreateAccountPageState extends State<CreateAccountPage> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  bool _isObscure = true;
+
+  bool isValidEmail(String email) {
+    final emailRegExp = RegExp(
+        r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$");
+    return emailRegExp.hasMatch(email);
+  }
+
+  bool isValidPassword(String password) {
+    final passwordRegExp =
+        RegExp(r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$");
+    return passwordRegExp.hasMatch(password);
+  }
+
+  final CollectionReference usersCollection =
+      FirebaseFirestore.instance.collection('users');
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
-    final TextEditingController nameController = TextEditingController();
-
-    bool isValidEmail(String email) {
-      final emailRegExp = RegExp(
-          r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$");
-      return emailRegExp.hasMatch(email);
-    }
-
-    bool isValidPassword(String password) {
-      final passwordRegExp = RegExp(
-          r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$");
-      return passwordRegExp.hasMatch(password);
-    }
-
-    final CollectionReference usersCollection =
-        FirebaseFirestore.instance.collection('users');
-
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -50,16 +57,16 @@ class CreateAccountPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                     GestureDetector(
-                                onTap: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Icon(
-                                  Icons.arrow_back,
-                                  size: 24,
-                                  color: Colors.black,
-                                ),
-                              ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Icon(
+                        Icons.arrow_back,
+                        size: 24,
+                        color: Colors.black,
+                      ),
+                    ),
                     Center(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
@@ -83,18 +90,86 @@ class CreateAccountPage extends StatelessWidget {
                       decoration: const InputDecoration(
                         labelText: 'Email',
                         hintText: 'Entrer votre Email',
-                        border: OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(255, 7, 155, 205)),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
                     TextField(
                       controller: passwordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
+                      obscureText: _isObscure,
+                      decoration: InputDecoration(
                         labelText: 'Password',
                         hintText: 'Entrer votre Mot de Passe',
-                        border: OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isObscure
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isObscure = !_isObscure; // Inverse l'état
+                            });
+                          },
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(255, 7, 155, 205)),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
                       ),
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      obscureText: _isObscure,
+                      decoration: InputDecoration(
+                        labelText: 'Confirmer le mot de passe',
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isObscure
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isObscure = !_isObscure; // Inverse l'état
+                            });
+                          },
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(255, 7, 155, 205)),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Veuillez saisir à nouveau le mot de passe';
+                        }
+                        if (value != passwordController.text) {
+                          return 'Les mots de passe ne correspondent pas';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        // _confirmationMotDePasse = value!;
+                      },
                     ),
                     const SizedBox(height: 20),
                     TextField(
@@ -102,7 +177,15 @@ class CreateAccountPage extends StatelessWidget {
                       decoration: const InputDecoration(
                         labelText: 'Nom',
                         hintText: 'Entrer votre Nom',
-                        border: OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(255, 7, 155, 205)),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -141,14 +224,14 @@ class CreateAccountPage extends StatelessWidget {
                             );
 
                             final profilePictureUrl =
-                                getRandomProfilePicture(); // Generate random profile picture URL
+                                getRandomProfilePicture(); // Génère une URL d'image de profil aléatoire
 
                             final user = User(
                               uid: userCredential.user!.uid,
                               email: email,
                               name: name,
                               profilePictureUrl:
-                                  profilePictureUrl, // Set profile picture URL
+                                  profilePictureUrl, // Définit l'URL de l'image de profil
                             );
 
                             await usersCollection
@@ -191,7 +274,6 @@ class CreateAccountPage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    
                   ],
                 ),
               ),
