@@ -1,9 +1,14 @@
+import 'dart:math';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../login.dart';
-import '../welcome.dart';
-import '../settings.dart';
-import '../profile.dart';
+import 'login.dart';
+import 'welcome.dart';
+import 'settings.dart';
+import 'profile.dart';
+import 'resources.dart';
+import 'quizParents.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,18 +36,77 @@ class SideMenuPage extends StatefulWidget {
 class _SideMenuPageState extends State<SideMenuPage> {
   String userName = '';
   String userEmail = '';
+  bool userInfoLoaded = false;
 
   @override
   void initState() {
     super.initState();
     fetchUserInfo();
   }
+   // tsawer par défaut 
+  List<String> profilePictures = [
+    'gnome1.jpg',
+    'gnome2.jpg',
+    'gnome3.jpg',
+    'gnome4.jpg',
+    'gnome5.jpg',
+    'gnome6.jpg',
+    'gnome7.jpg',
+    'gnome8.jpg',
+  ];
+  // tsawer par défaut 
+  String getRandomProfilePicture() {
+    Random random = Random();
+    int index = random.nextInt(profilePictures.length);
+    return profilePictures[index];
+  }
+  // Function to handle user account creation
+  Future<void> createUserAccount() async {
+  try {
+    // Get the current user
+    final User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Check if the user already has a profile picture assigned
+      final DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
 
-  Future<void> fetchUserInfo() async {
-    // Votre logique de récupération des informations utilisateur ici
-    // Par exemple :
-    userName = '';
-    userEmail = '';
+      if (!snapshot.exists || snapshot.data()?['profilePictureUrl'] == null) {
+        // Generate a random profile picture URL only if it's not already set
+        String profilePictureUrl = getRandomProfilePicture();
+        // Update the user's profile picture URL in the database
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'profilePictureUrl': profilePictureUrl,
+        }, SetOptions(merge: true));
+      }
+    }
+  } catch (e) {
+    print('Error creating user account: $e');
+  }
+}
+
+
+   Future<void> fetchUserInfo() async {
+    try {
+      final User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('email', isEqualTo: user.email)
+            .get();
+
+        if (querySnapshot.docs.isNotEmpty) {
+          final userData = querySnapshot.docs.first.data();
+          setState(() {
+            userName = userData['name'];
+            userEmail = user.email!;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error fetching user info: $e');
+    }
   }
 
   Future<String> fetchUserProfilePicture() async {
@@ -58,11 +122,11 @@ class _SideMenuPageState extends State<SideMenuPage> {
         children: <Widget>[
           UserAccountsDrawerHeader(
             accountName: Text(
-              userName.isNotEmpty ? userName : 'Loading...',
+              userName.isNotEmpty ? userName : '',
               style: const TextStyle(color: Colors.black),
             ),
             accountEmail: Text(
-              userEmail.isNotEmpty ? userEmail : 'Loading...',
+              userEmail.isNotEmpty ? userName : '',
               style: const TextStyle(color: Colors.black),
             ),
             currentAccountPicture: FutureBuilder<String>(
@@ -77,8 +141,8 @@ class _SideMenuPageState extends State<SideMenuPage> {
                   );
                 } else {
                   return const CircleAvatar(
-                    backgroundImage: AssetImage(
-                        'assets/default_profile_picture.jpg'), // Placeholder image
+                    backgroundImage:
+                        AssetImage('assets/gnome7.jpg'), // Placeholder image
                   );
                 }
               },
@@ -111,6 +175,21 @@ class _SideMenuPageState extends State<SideMenuPage> {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.folder),
+            title: const Text('Resources'),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(Icons.folder),
+            title: const Text('Quiz'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const QuizPage()),
+              );
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Paramètres'),
             onTap: () {
@@ -124,10 +203,37 @@ class _SideMenuPageState extends State<SideMenuPage> {
             leading: const Icon(Icons.exit_to_app),
             title: const Text('Se déconnecter'),
             onTap: () {
-              FirebaseAuth.instance.signOut();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text(
+                      'Déconnexion',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    content: Text('Voulez-vous vraiment vous déconnecter ?'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context)
+                              .pop(); // Fermer la boîte de dialogue
+                        },
+                        child: const Text('Non'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          FirebaseAuth.instance.signOut(); // Se déconnecter
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const LoginPage()),
+                          ); // Naviguer vers la page de connexion
+                        },
+                        child: const Text('Oui'),
+                      ),
+                    ],
+                  );
+                },
               );
             },
           ),
