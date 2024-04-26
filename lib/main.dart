@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:autisme/login.dart'; // Import your login screen
 import 'firebase_options.dart'; // Import your Firebase options file
+import 'espace.dart';
+import 'face.dart';
+import 'loginenfant.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,12 +14,33 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: LoginPage(), // Display the LoginScreen widget as the home page
+    return MaterialApp(
+      routes: {
+        '/': (context) => EspacePage(),
+        '/loginenfant': (context) => LoginenfantPage(),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/face') {
+          // Extracting arguments passed to the FacePage
+          final Map<String, dynamic>? args =
+              settings.arguments as Map<String, dynamic>?;
+
+          // Check if the arguments are not null
+          if (args != null) {
+            return MaterialPageRoute(
+              builder: (context) => FacePage(
+                useremailenfant: args['useremailenfant'],
+                informations: args['informations'],
+              ),
+            );
+          }
+        }
+        return null;
+      },
     );
   }
 }
