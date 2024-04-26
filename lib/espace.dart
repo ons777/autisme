@@ -54,7 +54,7 @@ class EspacePage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(height: 30),
+                    SizedBox(height: 60),
                     ElevatedButton(
                       onPressed: () {
                         Navigator.push(
@@ -66,9 +66,9 @@ class EspacePage extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         fixedSize: Size(300, 60),
                       ),
-                      child: Text('Espace de Parent'),
+                      child: Text('Espace  Parents'),
                     ),
-                    SizedBox(height: 30),
+                    SizedBox(height: 60),
                     ElevatedButton(
                       onPressed: () {
                         Navigator.push(
@@ -79,11 +79,10 @@ class EspacePage extends StatelessWidget {
                         print('Child Space Button Pressed');
                       },
                       style: ElevatedButton.styleFrom(
-                        fixedSize: Size(200, 50),
-                        minimumSize:
-                            Size(double.infinity, 50), // Correction ici
+                        fixedSize: Size(300, 60),
+                        // Correction ici
                       ),
-                      child: Text('Espace de Enfant'),
+                      child: Text('Espace  Enfants'),
                     )
                   ],
                 ),
