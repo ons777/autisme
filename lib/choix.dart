@@ -1,13 +1,14 @@
+import 'package:autisme_app/ChatPage%20.dart';
+import 'package:autisme_app/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'side_menu.dart';
 import 'face.dart';
-import 'dart:ui'; // Pour utiliser les images locales
 
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +32,11 @@ class Choix extends StatefulWidget {
   final String userName;
 
   const Choix({
-    Key? key,
+    super.key,
     required this.informations,
     required this.userEmail,
     required this.userName,
-  }) : super(key: key);
+  });
 
   @override
   _ChoixState createState() => _ChoixState();
@@ -44,8 +45,12 @@ class Choix extends StatefulWidget {
 class Enfant {
   final String emailenfant;
   final String motDePasse;
+  final String pseudo;
 
-  Enfant({required this.emailenfant, required this.motDePasse});
+  Enfant(
+      {required this.emailenfant,
+      required this.motDePasse,
+      required this.pseudo});
 }
 
 class _ChoixState extends State<Choix> {
@@ -65,15 +70,16 @@ class _ChoixState extends State<Choix> {
           ),
         ),
       ),
-      drawer: Drawer(
+      drawer: const Drawer(
         child: SideMenuPage(),
       ),
       body: Column(
         children: [
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () async {
-              final emailenfantMotDePasse = await showDialog<Map<String, String>>(
+              final emailenfantMotDePasse =
+                  await showDialog<Map<String, String>>(
                 context: context,
                 builder: (context) =>
                     FormulaireDialog(userEmail: widget.userEmail),
@@ -84,12 +90,16 @@ class _ChoixState extends State<Choix> {
               if (emailenfantMotDePasse != null) {
                 final emailenfant = emailenfantMotDePasse['emailenfant']!;
                 final motDePasse = emailenfantMotDePasse['motDePasse']!;
-                final nouvelEnfant =
-                    Enfant(emailenfant: emailenfant, motDePasse: motDePasse);
+                final pseudo = emailenfantMotDePasse['pseudo']!;
+                final nouvelEnfant = Enfant(
+                    emailenfant: emailenfant,
+                    motDePasse: motDePasse,
+                    pseudo: pseudo);
                 setState(() {
                   enfants.add(nouvelEnfant);
                 });
-                ajouterEnfant(emailenfant, motDePasse, widget.userEmail);
+                ajouterEnfant(
+                    pseudo, emailenfant, motDePasse, widget.userEmail);
               }
             },
             child: const Text('Ajouter Enfant'),
@@ -109,18 +119,11 @@ class _ChoixState extends State<Choix> {
                 children: enfants.map((enfant) {
                   return ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => Choix(
-                                  informations: {},
-                                  userEmail: widget.userEmail,
-                                  userName: widget.userName,
-                                )),
-                      );
+                      // Action lorsque le bouton de l'enfant est appuyé
                     },
                     child: Text(
-                      enfant.emailenfant,
+                      enfant
+                          .pseudo, // Utilisez le pseudo de l'enfant comme texte du bouton
                       style: const TextStyle(fontSize: 30),
                     ),
                     style: ButtonStyle(
@@ -150,16 +153,78 @@ class _ChoixState extends State<Choix> {
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.shifting,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat),
+            label: 'Chat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.folder),
+            label: 'Resources',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        onTap: (int index) {
+          switch (index) {
+            case 0:
+              // Vérifier si nous sommes déjà sur la page de choix
+              if (ModalRoute.of(context)!.settings.name != '/choix') {
+                // Nous ne sommes pas sur la page de choix, donc nous naviguons vers elle
+
+                // Navigate to Home
+                Navigator.pushNamed(context, '/choix');
+
+                MaterialPageRoute(
+                  builder: (context) => Choix(
+                    userEmail: '', // Remplacez par la valeur appropriée
+                    userName: '', // Remplacez par la valeur appropriée
+                    informations: {},
+                  ),
+                );
+              }
+
+              break;
+            case 1:
+              // Navigate to Chat
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ChatPage()),
+              );
+              break;
+            case 2:
+              // Navigate to Resources
+              break;
+            case 3:
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const UserProfile()),
+              );
+              break;
+          }
+        },
+      ),
     );
   }
 
-  Future<bool> ajouterEnfant(
-      String emailenfant, String motDePasse, String emailParent) async {
+  Future<bool> ajouterEnfant(String emailenfant, String motDePasse,
+      String emailParent, String pseudo) async {
     try {
       await FirebaseFirestore.instance.collection('enfants').add({
         'emailenfant': emailenfant,
         'motDePasse': motDePasse,
         'emailParent': emailParent,
+        'pseudo': pseudo,
       });
       print('Enfant ajouté avec succès à Firestore !');
       return true; // Retourne vrai si l'enfant est ajouté avec succès
@@ -175,12 +240,15 @@ class FormulaireDialog extends StatefulWidget {
 
   FormulaireDialog({Key? key, required this.userEmail}) : super(key: key);
 
+  get enfants => null;
+
   @override
   _FormulaireDialogState createState() => _FormulaireDialogState();
 }
 
 class _FormulaireDialogState extends State<FormulaireDialog> {
   final _formKey = GlobalKey<FormState>();
+  late String _pseudo;
   late String _emailenfant;
   late String _motDePasse;
   late String _confirmationMotDePasse;
@@ -188,7 +256,7 @@ class _FormulaireDialogState extends State<FormulaireDialog> {
   bool _isObscure = true;
   TextEditingController password = TextEditingController();
   TextEditingController confirmPassword = TextEditingController();
-   bool isValidEmail(String emailenfant) {
+  bool isValidEmail(String emailenfant) {
     final emailRegExp = RegExp(
         r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$");
     return emailRegExp.hasMatch(emailenfant);
@@ -249,6 +317,30 @@ class _FormulaireDialogState extends State<FormulaireDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Pseudo',
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(255, 7, 155, 205)),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Veuillez saisir un pseudo';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        _pseudo = value!;
+                      },
+                    ),
+                    SizedBox(height: 20),
                     TextFormField(
                       decoration: InputDecoration(
                         labelText: 'emailenfant',
@@ -388,14 +480,14 @@ class _FormulaireDialogState extends State<FormulaireDialog> {
                               _formKey.currentState!.validate()) {
                             print("true");
                             form.save();
-                            final succes = await ajouterEnfant(
+                            final succes = await ajouterEnfant(_pseudo,
                                 _emailenfant, password.text, widget.userEmail);
                             // Utilisez la variable succes pour prendre des mesures appropriées en fonction du résultat de l'ajout d'enfant
                             print("await");
                             if (succes) {
                               print("succes");
-                              afficherMessage(context,
-                                  'Enfant ajouté avec succès');
+                              afficherMessage(
+                                  context, 'Enfant ajouté avec succès');
                             } else {
                               print("err");
                               afficherMessage(context,
@@ -425,15 +517,22 @@ class _FormulaireDialogState extends State<FormulaireDialog> {
     final form = _formKey.currentState;
     if (form != null && _formKey.currentState!.validate()) {
       form.save();
-      final succes =
-          await ajouterEnfant(_emailenfant, _motDePasse, widget.userEmail);
-      // Utilisez la variable succes pour prendre des mesures appropriées en fonction du résultat de l'ajout d'enfant
-      print("await");
+      final succes = await ajouterEnfant(
+          _pseudo, _emailenfant, _motDePasse, widget.userEmail);
       if (succes) {
-        print("succes");
+        setState(() {
+          // Ajouter l'enfant à la liste d'enfants
+
+          widget.enfants.add(Enfant(
+            emailenfant: _emailenfant,
+            motDePasse: _motDePasse,
+            pseudo: _pseudo,
+          ));
+        });
+
+        // Afficher un message de succès
         afficherMessage(context, 'Enfant ajouté avec succès à Firestore !');
       } else {
-        print("err");
         afficherMessage(
             context, 'Erreur lors de l\'ajout de l\'enfant à Firestore');
       }
@@ -460,12 +559,13 @@ class _FormulaireDialogState extends State<FormulaireDialog> {
     );
   }
 
-  Future<bool> ajouterEnfant(
-      String emailenfant, String motDePasse, String emailParent) async {
+  Future<bool> ajouterEnfant(String pseudo, String emailenfant,
+      String motDePasse, String emailParent) async {
     print("object");
     try {
       print("try");
       await FirebaseFirestore.instance.collection('enfants').add({
+        'pseudo': pseudo,
         'emailenfant': emailenfant,
         'motDePasse': motDePasse,
         'emailParent': emailParent,
