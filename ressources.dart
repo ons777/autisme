@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 import 'footer.dart';
 import 'side_menu.dart';
 
@@ -9,7 +9,7 @@ void main() {
       primarySwatch: Colors.blue,
       fontFamily: 'Montserrat',
     ),
-    home: const RessourcesPage(),
+    home: const FooterPage(),
   ));
 }
 
@@ -21,22 +21,17 @@ class RessourcesPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        title: const Text('Ressources pour les parents',
-            style: TextStyle(color: Colors.white)),
+        title: const Text('Ressources pour les parents', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color.fromARGB(255, 80, 142, 209),
         elevation: 0,
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const Icon(Icons.menu_rounded),
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
+            icon: const Icon(Icons.menu),  // Icon changed to menu for clarity
+            onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
       ),
-      drawer: const Drawer(
-        child: SideMenuPage(),
-      ),
+      drawer: const SideMenuPage(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -109,7 +104,7 @@ class RessourcesPage extends StatelessWidget {
             const SizedBox(height: 10.0),
             _buildLink(
               'Écoutez notre playlist de musique relaxante sur Spotify',
-              'https://open.spotify.com/playlist/6AYjWnOD9wJUuOaXij1KxP',
+              'https://open.spotify.com/playlist/37i9dQZF1DZ06evNZYQgXS',
             ),
             const SizedBox(height: 20.0),
 
@@ -118,11 +113,11 @@ class RessourcesPage extends StatelessWidget {
             const SizedBox(height: 10.0),
             _buildLink(
               'Jouez à des jeux interactifs sur Autisme-Education',
-              'https://www.autisme-education.com/',
+              'https://play.google.com/store/apps/details?id=com.auticiel.autimo&hl=fr',
             ),
             _buildLink(
               'Découvrez des jeux éducatifs sur Autism Speaks',
-              'https://www.autismspeaks.org/activities',
+              'https://play.google.com/store/apps/details?id=com.talkingfriend.toucan&hl=fr&gl=US',
             ),
           ],
         ),
@@ -145,10 +140,7 @@ class RessourcesPage extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: ListTile(
-        leading: const Icon(
-          Icons.lightbulb_outline,
-          color: Color.fromARGB(255, 80, 142, 209),
-        ),
+        leading: const Icon(Icons.lightbulb_outline, color: Color.fromARGB(255, 80, 142, 209),),
         title: Text(
           tip,
           style: const TextStyle(
@@ -183,26 +175,36 @@ class RessourcesPage extends StatelessWidget {
     );
   }
 
-  Widget _buildLink(String title, String url) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: ListTile(
-        leading: const Icon(Icons.link, color: Colors.blue),
-        title: InkWell(
-          onTap: () {
-            // Ouvrir le lien lorsque l'utilisateur appuie dessus
-            // (vous pouvez remplacer cette fonction par l'ouverture du lien dans le navigateur ou dans votre application)
-          },
-          child: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18.0,
-              color: Colors.blue,
-              decoration: TextDecoration.underline,
-            ),
+  Future<void> _launchUrl(String url) async {
+  if (await canLaunchUrl(Uri.parse(url))) {
+    await launchUrl(Uri.parse(url));
+  } else {
+    // Handle the error or inform the user
+    print('Could not launch $url');
+  }
+}
+
+
+
+  Widget _buildLink(String text, String url) {
+  return InkWell(
+    onTap: () => _launchUrl(url),
+    child: Row(
+      mainAxisSize: MainAxisSize.min, // Ensures the Row only takes needed space
+      children: [
+        Icon(Icons.link, color: Colors.blue[800], size: 20),
+        const SizedBox(width: 4),
+        Text(
+          text,
+          style: TextStyle(
+            color: Colors.blue[800],
+            decoration: TextDecoration.underline,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
         ),
-      ),
-    );
-  }
+      ],
+    ),
+  );
+}
 }
