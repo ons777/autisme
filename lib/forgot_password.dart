@@ -1,8 +1,9 @@
+
 // ignore_for_file: use_build_context_synchronously, avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:autisme/login.dart';
+import 'login.dart';
 
 class ForgotPasswordPage extends StatelessWidget {
   const ForgotPasswordPage({super.key});
@@ -32,6 +33,16 @@ class ForgotPasswordPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Icon(
+                        Icons.arrow_back,
+                        size: 24,
+                        color: Colors.black,
+                      ),
+                    ),
                     Center(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
@@ -67,7 +78,8 @@ class ForgotPasswordPage extends StatelessWidget {
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Color.fromARGB(255, 7, 155, 205)),
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(255, 7, 155, 205)),
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
                       ),
@@ -82,24 +94,28 @@ class ForgotPasswordPage extends StatelessWidget {
                             );
                             Navigator.pushReplacement(
                               context,
-                              MaterialPageRoute(builder: (context) => const LoginPage()),
+                              MaterialPageRoute(
+                                  builder: (context) => const LoginPage()),
                             );
                           } catch (e) {
                             print('Failed to send password reset email: $e');
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Failed to send password reset email'),
+                                content:
+                                    Text('Failed to send password reset email'),
                                 backgroundColor: Colors.red,
                               ),
                             );
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(255, 7, 155, 205),
+                          backgroundColor:
+                              const Color.fromARGB(255, 7, 155, 205),
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.all(Radius.circular(20)),
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 50, vertical: 15),
                           elevation: 5,
                           shadowColor: Colors.black,
                         ),
@@ -111,17 +127,6 @@ class ForgotPasswordPage extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context); 
-                      },
-                      child: Image.asset(
-                        'assets/back_button_image.png',
-                        width: 24,
-                        height: 24,
                       ),
                     ),
                   ],

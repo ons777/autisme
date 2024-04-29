@@ -1,13 +1,15 @@
+// ignore_for_file: prefer_const_constructors, avoid_print, library_private_types_in_public_api
+
 import 'dart:math';
-import 'package:autisme/PublicChatPage.dart';
-import 'package:autisme/activites.dart';
-import 'package:autisme/login.dart';
-import 'package:autisme/profile.dart';
-import 'package:autisme/settings.dart';
-import 'package:autisme/welcome.dart';
+import 'ChatPage.dart';
+import 'activites.dart';
+import 'login.dart';
+import 'profile.dart';
+import 'settings.dart';
+import 'welcome.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:autisme/calender.dart';
+import 'calender.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
@@ -24,13 +26,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const FacePage(),
+      home: const FacePage(useremailenfant: '', informations: {},),
     );
   }
 }
 
 class FacePage extends StatelessWidget {
-  const FacePage({super.key});
+  const FacePage({super.key, required String useremailenfant, required Map informations});
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +121,7 @@ class FacePage extends StatelessWidget {
               // Navigate to Home
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const FacePage()),
+                MaterialPageRoute(builder: (context) => const FacePage(useremailenfant: '', informations: {},)),
               );
               break;
             case 1:
@@ -307,7 +309,7 @@ class _SideMenuContentState extends State<SideMenuContent> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const UserProfile()),
+                MaterialPageRoute(builder: (context) =>  ProfilePage()),
               );
             },
           ),
