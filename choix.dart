@@ -63,10 +63,13 @@ class _ChoixState extends State<Choix> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Liste des enfants'),
-        leading: IconButton(
-          icon: const Icon(Icons.menu_rounded),
-          onPressed: () => Scaffold.of(context).openDrawer(),
-        ),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu_rounded),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+       ),),
       ),
       drawer: const Drawer(child: SideMenuPage()),
       body: Column(
