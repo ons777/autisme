@@ -2,7 +2,6 @@
 // ignore_for_file: use_build_context_synchronously, avoid_print
 
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'login.dart';
 
 class ForgotPasswordPage extends StatelessWidget {
@@ -37,7 +36,11 @@ class ForgotPasswordPage extends StatelessWidget {
                       onTap: () {
                         Navigator.pop(context);
                       },
+<<<<<<< HEAD
                       child: const Icon(
+=======
+                      child: Icon(
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
                         Icons.arrow_back,
                         size: 24,
                         color: Colors.black,

@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 // ignore_for_file: avoid_print, file_names, library_private_types_in_public_api
 
+=======
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';

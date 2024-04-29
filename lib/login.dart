@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 // ignore_for_file: use_build_context_synchronously, avoid_print, duplicate_ignore
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'espace.dart';
+=======
+import 'package:autisme_app/espace.dart';
+
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
 import 'forgot_password.dart';
 import 'create_account.dart';
 import 'choix.dart';
@@ -22,8 +27,8 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isObscure = true;
 
-  String _userEmail = '';
-  String _userName = '';
+  final String _userEmail = '';
+  final String _userName = '';
 
   @override
   Widget build(BuildContext context) {
@@ -55,17 +60,24 @@ class _LoginPageState extends State<LoginPage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
+<<<<<<< HEAD
                                   builder: (context) => const EspacePage()),
                             );
                           },
                           child: const Icon(
+=======
+                                  builder: (context) => EspacePage()),
+                            );
+                          },
+                          child: Icon(
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
                             Icons.arrow_back,
                             size: 24,
                             color: Colors.black,
                           ),
                         ),
                         Center(
-                          child: Padding(
+                          child = Padding(
                             padding: const EdgeInsets.symmetric(vertical: 30),
                             child: Image.asset(
                               'assets/logo.jpg',
@@ -75,22 +87,22 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const Text(
                           'E-mail',
-                          style: TextStyle(
+                          style = const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height = 10),
                         TextFormField(
-                          controller: _emailController,
-                          validator: (value) {
+                          controller = _emailController,
+                          validator = (value) {
                             if (value == null || value.isEmpty) {
                               return 'Veuillez entrer votre email';
                             }
                             return null;
                           },
-                          decoration: const InputDecoration(
+                          decoration = const InputDecoration(
                             hintText: 'Entrer votre Email',
                             enabledBorder: OutlineInputBorder(
                               borderSide: BorderSide(color: Colors.grey),
@@ -105,26 +117,26 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height = 20),
                         const Text(
                           'Password',
-                          style: TextStyle(
+                          style = const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height = 10),
                         TextFormField(
-                          controller: _passwordController,
-                          validator: (value) {
+                          controller = _passwordController,
+                          validator = (value) {
                             if (value == null || value.isEmpty) {
                               return 'Veuillez entrer votre mot de passe';
                             }
                             return null;
                           },
-                          obscureText: _isObscure,
-                          decoration: InputDecoration(
+                          obscureText = _isObscure,
+                          decoration = InputDecoration(
                             hintText: 'Entrez votre mot de passe',
                             suffixIcon: IconButton(
                               icon: Icon(
@@ -138,12 +150,20 @@ class _LoginPageState extends State<LoginPage> {
                                 });
                               },
                             ),
+<<<<<<< HEAD
                             enabledBorder: const OutlineInputBorder(
+=======
+                            enabledBorder: OutlineInputBorder(
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
                               borderSide: BorderSide(color: Colors.grey),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(10)),
                             ),
+<<<<<<< HEAD
                             focusedBorder: const OutlineInputBorder(
+=======
+                            focusedBorder: OutlineInputBorder(
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
                               borderSide: BorderSide(
                                   color: Color.fromARGB(255, 7, 155, 205)),
                               borderRadius:
@@ -197,31 +217,38 @@ class _LoginPageState extends State<LoginPage> {
                                       builder: (context) => Choix(
                                           userEmail: _userEmail,
                                           userName: _userName,
+<<<<<<< HEAD
                                           informations: const {}),
                                     ),
                                   );
                                 } catch (e) {
                                   // ignore: avoid_print
+=======
+                                          informations: {}),
+                                    ),
+                                  );
+                                } catch (e) {
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
                                   print('Failed to sign in: $e');
                                   // Handle sign-in errors (e.g., display error message)
                                 }
                               }
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
+                              backgroundColor =
                                   const Color.fromARGB(255, 7, 155, 205),
-                              shape: const RoundedRectangleBorder(
+                              shape = const RoundedRectangleBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(20)),
                               ),
-                              padding: const EdgeInsets.symmetric(
+                              padding = const EdgeInsets.symmetric(
                                   horizontal: 50, vertical: 15),
-                              elevation: 5,
-                              shadowColor: Colors.black,
+                              elevation = 5,
+                              shadowColor = Colors.black,
                             ),
                             child: const Text(
                               'se connecter',
-                              style: TextStyle(
+                              style = const TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -229,10 +256,10 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height = 10),
                         Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Row(
+                          padding = const EdgeInsets.only(left: 8.0),
+                          child = Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               TextButton(

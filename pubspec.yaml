@@ -53,6 +53,8 @@ dependencies:
   flutter_chat_types: any
   file_picker: ^8.0.1
   uuid: ^4.4.0
+  autisme_app: any
+  image_picker: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

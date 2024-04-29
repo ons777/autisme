@@ -18,10 +18,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       routes: {
+<<<<<<< HEAD
         '/': (context) => const EspacePage(),
         '/loginenfant': (context) => const LoginenfantPage(),
+=======
+        '/': (context) => const EspacePage(),
+        '/loginenfant': (context) => const LoginenfantPage(),
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/face') {

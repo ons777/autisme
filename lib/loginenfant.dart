@@ -1,25 +1,34 @@
+<<<<<<< HEAD
 // ignore_for_file: avoid_print, library_private_types_in_public_api, use_build_context_synchronously
 
 import 'face.dart';
+=======
+import 'package:autisme_app/face.dart';
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'forgot_password.dart';
+<<<<<<< HEAD
 
 class LoginenfantPage extends StatefulWidget {
   const LoginenfantPage({super.key});
+=======
+import 'face.dart';
+
+class LoginenfantPage extends StatefulWidget {
+  const LoginenfantPage({Key? key}) : super(key: key);
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
 
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginenfantPage> {
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailenfantController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  bool _isObscure = true;
+  final formKey = GlobalKey<FormState>();
+  final TextEditingController emailenfantController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  bool isObscure = true;
 
-  String _useremailenfant = '';
+  String useremailenfant = '';
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +51,7 @@ class _LoginPageState extends State<LoginenfantPage> {
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Form(
-                  key: _formKey,
+                  key: formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -50,7 +59,11 @@ class _LoginPageState extends State<LoginenfantPage> {
                         onTap: () {
                           Navigator.pop(context);
                         },
+<<<<<<< HEAD
                         child: const Icon(
+=======
+                        child: Icon(
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
                           Icons.arrow_back,
                           size: 24,
                           color: Colors.black,
@@ -128,11 +141,19 @@ class _LoginPageState extends State<LoginenfantPage> {
                               });
                             },
                           ),
+<<<<<<< HEAD
                           enabledBorder: const OutlineInputBorder(
                             borderSide: BorderSide(color: Colors.grey),
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                           ),
                           focusedBorder: const OutlineInputBorder(
+=======
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
                             borderSide: BorderSide(
                                 color: Color.fromARGB(255, 7, 155, 205)),
                             borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -167,8 +188,14 @@ class _LoginPageState extends State<LoginenfantPage> {
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               try {
+<<<<<<< HEAD
                                 print('Attempting to sign in with email: ${_emailenfantController.text.trim()}');
                                 final userCredential = await FirebaseAuth.instance.signInWithCredential(
+=======
+                                final userCredential = await FirebaseAuth
+                                    .instance
+                                    .signInWithCredential(
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
                                   EmailAuthProvider.credential(
                                     email: _emailenfantController.text.trim(),
                                     password: _passwordController.text.trim(),
@@ -185,11 +212,16 @@ class _LoginPageState extends State<LoginenfantPage> {
                                   MaterialPageRoute(
                                     builder: (context) => FacePage(
                                       useremailenfant: _useremailenfant,
+<<<<<<< HEAD
                                       informations: const {},
+=======
+                                      informations: {},
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
                                     ),
                                   ),
                                 );
                               } catch (e) {
+<<<<<<< HEAD
       if (e is FirebaseAuthException) {
         print('Error code: ${e.code}');
         print('Error message: ${e.message}');
@@ -202,6 +234,11 @@ class _LoginPageState extends State<LoginenfantPage> {
       print('Failed to sign in: $e');
     }
 
+=======
+                                print('Failed to sign in: $e');
+                                // Handle sign-in errors (e.g., display error message)
+                              }
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -227,8 +264,13 @@ class _LoginPageState extends State<LoginenfantPage> {
                         ),
                       ),
                       const SizedBox(height: 10),
+<<<<<<< HEAD
                       const Padding(
                         padding: EdgeInsets.only(left: 8.0),
+=======
+                      Padding(
+                        padding: EdgeInsets.only(left: 8.0),
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                         ),
@@ -241,14 +283,18 @@ class _LoginPageState extends State<LoginenfantPage> {
           ),
         ),
       ),
-    );
+    )
   }
 
   Future<void> fetchUserData(String emailenfant) async {
     try {
       final QuerySnapshot<Map<String, dynamic>> snapshot =
-          await FirebaseFirestore.instance
+          FirebaseFirestore.instance
+<<<<<<< HEAD
               .collection('enfants')
+=======
+              .collection('enfant')
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
               .where('emailenfant', isEqualTo: emailenfant)
               .limit(1)
               .get();
@@ -256,7 +302,11 @@ class _LoginPageState extends State<LoginenfantPage> {
       if (snapshot.docs.isNotEmpty) {
         final userData = snapshot.docs.first.data();
         setState(() {
+<<<<<<< HEAD
           _useremailenfant = userData['emailenfant'] ?? '';
+=======
+          _useremailenfant = userData['emailenfant'] ?? '';
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
         });
         // Autres opérations après la connexion réussie, par exemple, navigation vers une autre page
         Navigator.pushReplacement(
@@ -264,7 +314,11 @@ class _LoginPageState extends State<LoginenfantPage> {
           MaterialPageRoute(
             builder: (context) => FacePage(
               useremailenfant: _useremailenfant,
+<<<<<<< HEAD
               informations: const {}, // Les informations supplémentaires peuvent être transmises ici
+=======
+              informations: {}, // Les informations supplémentaires peuvent être transmises ici
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
             ),
           ),
         );

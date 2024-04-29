@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 // ignore_for_file: library_private_types_in_public_api, file_names
 
+=======
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
 import 'package:flutter/material.dart';
 
 import 'ppp.dart';

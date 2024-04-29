@@ -41,9 +41,9 @@ class _CalendarPageState extends State<CalendarPage> {
   late TextEditingController _eventLocationController;
   late DateTime _fromDateTime;
   late DateTime _toDateTime;
-  bool _isAllDay = false;
-  String _repetition = 'Aucune';
-  String _reminder = 'Aucun';
+  final bool _isAllDay = false;
+  final String _repetition = 'Aucune';
+  final String _reminder = 'Aucun';
 
   String? eventNameValidator(String? value) {
     if (value == null || value.isEmpty) {
@@ -78,6 +78,7 @@ class _CalendarPageState extends State<CalendarPage> {
     super.dispose();
   }
 
+<<<<<<< HEAD
   void _addEvent(String eventName, String eventLocation, String repetition, String reminder) async {
   try {
     // Get a reference to the events collection
@@ -89,14 +90,40 @@ class _CalendarPageState extends State<CalendarPage> {
       'eventLocation': eventLocation,
       'startDateTime': _fromDateTime.toIso8601String(),
       'endDateTime': _toDateTime.toIso8601String(),
+=======
+  void addEvent(String eventName, String eventLocation, String repetition,
+      String reminder) async {
+    var url = Uri.parse(
+        'http://127.0.0.1:5001/pfeprojet-ac067/us-central1/addEvent'); // Replace with your Cloud Function URL
+    var body = jsonEncode({
+      'event_name': eventName,
+      'event_location': eventLocation,
+      'start_datetime': _fromDateTime
+          .toIso8601String(), // Assuming _fromDateTime and _toDateTime are DateTime objects
+      'end_datetime': _toDateTime.toIso8601String(),
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
       'repetition': repetition,
       'reminder': reminder,
       'isAllDay': _isAllDay,
     });
 
+<<<<<<< HEAD
     print('Event added successfully');
   } catch (error) {
     print('Failed to add event: $error');
+=======
+    var response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: body,
+    );
+
+    if (response.statusCode == 200) {
+      print('Event added successfully');
+    } else {
+      print('Failed to add event. Status code: ${response.statusCode}');
+    }
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
   }
 }
 
@@ -130,7 +157,11 @@ class _CalendarPageState extends State<CalendarPage> {
                         onTap: () {
                           Navigator.pop(context);
                         },
+<<<<<<< HEAD
                         child: const Icon(
+=======
+                        child: Icon(
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
                           Icons.arrow_back,
                           size: 24,
                           color: Colors.black,
@@ -179,12 +210,18 @@ class _CalendarPageState extends State<CalendarPage> {
                             showModalBottomSheet(
                               context: context,
                               builder: (BuildContext context) {
+<<<<<<< HEAD
                                 return SingleChildScrollView( 
                                 child: Container(
             padding: EdgeInsets.only(
               bottom: MediaQuery.of(context).viewInsets.bottom,
             ),
             child: Container(
+=======
+                                return Container(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.7,
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
                                   decoration: const BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.only(
@@ -349,7 +386,11 @@ class _CalendarPageState extends State<CalendarPage> {
                                                   _eventNameController.text;
                                               String eventLocation =
                                                   _eventLocationController.text;
+<<<<<<< HEAD
                                               _addEvent(eventName, eventLocation,
+=======
+                                              addEvent(eventName, eventLocation,
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
                                                   _repetition, _reminder);
                                               Navigator.pop(context);
                                             },
@@ -408,7 +449,7 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
-  Future<void> _selectFromDate(BuildContext context) async {
+  Future<void> selectFromDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _fromDateTime,
@@ -422,7 +463,7 @@ class _CalendarPageState extends State<CalendarPage> {
     }
   }
 
-  Future<void> _selectToDate(BuildContext context) async {
+  Future<void> selectToDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _toDateTime,
@@ -436,7 +477,7 @@ class _CalendarPageState extends State<CalendarPage> {
     }
   }
 
-  Future<void> _selectFromTime(BuildContext context) async {
+  Future<void> selectFromTime(BuildContext context) async {
   final TimeOfDay? picked = await showTimePicker(
     context: context,
     initialTime: TimeOfDay.fromDateTime(_fromDateTime),
@@ -455,7 +496,7 @@ class _CalendarPageState extends State<CalendarPage> {
 }
 
 
-  Future<void> _selectToTime(BuildContext context) async {
+  Future<void> selectToTime(BuildContext context) async {
   final TimeOfDay? picked = await showTimePicker(
     context: context,
     initialTime: TimeOfDay.fromDateTime(_toDateTime),

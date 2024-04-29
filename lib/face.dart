@@ -1,12 +1,18 @@
 // ignore_for_file: prefer_const_constructors, avoid_print, library_private_types_in_public_api
 
 import 'dart:math';
+<<<<<<< HEAD
 import 'ChatPage.dart';
 import 'activites.dart';
 import 'login.dart';
 import 'profile.dart';
 import 'settings.dart';
 import 'welcome.dart';
+=======
+import 'ChatPage .dart';
+import 'choix.dart';
+import 'side_menu.dart';
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'calender.dart';
@@ -17,7 +23,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, Key? key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,13 +32,28 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+<<<<<<< HEAD
       home: const FacePage(useremailenfant: '', informations: {},),
+=======
+      home: const FacePage(useremailenfant: '', informations: {}),
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
     );
   }
 }
 
 class FacePage extends StatelessWidget {
+<<<<<<< HEAD
   const FacePage({super.key, required String useremailenfant, required Map informations});
+=======
+  final String useremailenfant;
+  final Map<String, dynamic> informations;
+
+  const FacePage({
+    super.key,
+    required this.useremailenfant,
+    required this.informations,
+  });
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +70,7 @@ class FacePage extends StatelessWidget {
         ),
       ),
       drawer: const Drawer(
-        child: SideMenuContent(),
+        child: SideMenuPage(),
       ),
       body: Stack(
         children: [
@@ -74,7 +95,9 @@ class FacePage extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const CalendarPage()),
+                      MaterialPageRoute(
+                        builder: (context) => const CalendarPage(),
+                      ),
                     );
                   },
                 ),
@@ -84,7 +107,9 @@ class FacePage extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => ActivityPage()),
+                      MaterialPageRoute(
+                        builder: (context) => ActivityPage(),
+                      ),
                     );
                   },
                 ),
@@ -121,21 +146,34 @@ class FacePage extends StatelessWidget {
               // Navigate to Home
               Navigator.push(
                 context,
+<<<<<<< HEAD
                 MaterialPageRoute(builder: (context) => const FacePage(useremailenfant: '', informations: {},)),
+=======
+                MaterialPageRoute(
+                  builder: (context) => Choix(
+                    userEmail: '', // Remplacez par la valeur appropriée
+                    userName: '', // Remplacez par la valeur appropriée
+                    informations: const {},
+                  ),
+                ),
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
               );
               break;
             case 1:
               // Navigate to Chat
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ChatPage()),
+                MaterialPageRoute(builder: (context) => ChatPage()),
               );
               break;
             case 2:
               // Navigate to Resources
               break;
             case 3:
-              // Navigate to Profile
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const UserProfile()),
+              );
               break;
           }
         },
@@ -144,6 +182,7 @@ class FacePage extends StatelessWidget {
   }
 }
 
+<<<<<<< HEAD
 class SideMenuContent extends StatefulWidget {
   const SideMenuContent({super.key});
 
@@ -340,13 +379,14 @@ class _SideMenuContentState extends State<SideMenuContent> {
   }
 }
 
+=======
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
 class CustomButton extends StatelessWidget {
   final IconData icon;
   final String label;
-  final VoidCallback onPressed;
+  final void Function() onPressed;
 
-  const CustomButton({
-    super.key,
+  const CustomButton({super.key, 
     required this.icon,
     required this.label,
     required this.onPressed,
@@ -368,7 +408,8 @@ class CustomButton extends StatelessWidget {
           children: [
             Icon(icon, size: 50.0, color: Colors.white),
             const SizedBox(height: 10.0),
-            Text(label, style: const TextStyle(fontSize: 20.0, color: Colors.white)),
+            Text(label,
+                style: const TextStyle(fontSize: 20.0, color: Colors.white)),
           ],
         ),
       ),

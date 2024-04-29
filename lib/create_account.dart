@@ -1,12 +1,17 @@
+<<<<<<< HEAD
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
+=======
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login.dart';
 
 class CreateAccountPage extends StatefulWidget {
+<<<<<<< HEAD
+  const CreateAccountPage({super.key});
+=======
   const CreateAccountPage({super.key});
 
   @override
@@ -19,7 +24,35 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
   final TextEditingController nameController = TextEditingController();
-  bool _isObscure = true;
+  final bool _isObscure = true;
+
+  bool isValidEmail(String email) {
+    final emailRegExp = RegExp(
+        r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$");
+    return emailRegExp.hasMatch(email);
+  }
+
+  bool isValidPassword(String password) {
+    final passwordRegExp =
+        RegExp(r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$");
+    return passwordRegExp.hasMatch(password);
+  }
+
+  final CollectionReference usersCollection =
+      FirebaseFirestore.instance.collection('users');
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
+
+  @override
+  _CreateAccountPageState createState() => _CreateAccountPageState();
+}
+
+class _CreateAccountPageState extends State<CreateAccountPage> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final bool _isObscure = true;
 
   bool isValidEmail(String email) {
     final emailRegExp = RegExp(
@@ -63,7 +96,11 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       onTap: () {
                         Navigator.pop(context);
                       },
+<<<<<<< HEAD
                       child: const Icon(
+=======
+                      child: Icon(
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
                         Icons.arrow_back,
                         size: 24,
                         color: Colors.black,
@@ -122,11 +159,19 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                             });
                           },
                         ),
+<<<<<<< HEAD
                         enabledBorder: const OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.grey),
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
                         focusedBorder: const OutlineInputBorder(
+=======
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
                           borderSide: BorderSide(
                               color: Color.fromARGB(255, 7, 155, 205)),
                           borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -150,11 +195,19 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                             });
                           },
                         ),
+<<<<<<< HEAD
                         enabledBorder: const OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.grey),
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
                         focusedBorder: const OutlineInputBorder(
+=======
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+>>>>>>> 1fcbd148686285e2211357bb9421a7396bedeb18
                           borderSide: BorderSide(
                               color: Color.fromARGB(255, 7, 155, 205)),
                           borderRadius: BorderRadius.all(Radius.circular(10)),
