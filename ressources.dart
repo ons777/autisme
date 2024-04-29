@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'footerr.dart';
+import 'side_menu.dart';
+
 void main() {
   runApp(MaterialApp(
     theme: ThemeData(
@@ -18,9 +21,21 @@ class RessourcesPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        title: const Text('Ressources pour les parents', style: TextStyle(color: Colors.white)),
+        title: const Text('Ressources pour les parents',
+            style: TextStyle(color: Colors.white)),
         backgroundColor: const Color.fromARGB(255, 80, 142, 209),
         elevation: 0,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu_rounded),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          ),
+        ),
+      ),
+      drawer: const Drawer(
+        child: SideMenuPage(),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -130,7 +145,10 @@ class RessourcesPage extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: ListTile(
-        leading: const Icon(Icons.lightbulb_outline, color: Color.fromARGB(255, 80, 142, 209),),
+        leading: const Icon(
+          Icons.lightbulb_outline,
+          color: Color.fromARGB(255, 80, 142, 209),
+        ),
         title: Text(
           tip,
           style: const TextStyle(
