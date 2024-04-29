@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'footerr.dart';
+import 'footer.dart';
 import 'side_menu.dart';
 
 void main() {
