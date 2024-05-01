@@ -100,12 +100,12 @@ class _ActivityPageState extends State<ActivityPage> {
 
   void resetActivities() {
   setState(() {
-    categories.forEach((category) {
-      category.activities.forEach((activity) {
+    for (var category in categories) {
+      for (var activity in category.activities) {
         activity.isDone = false;  // Reset to false
         activity.isMarked = null;
-      });
-    });
+      }
+    }
   });
 }
 
