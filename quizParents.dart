@@ -17,6 +17,7 @@ class _QuizPageState extends State<QuizPage> {
   int _currentQuestionIndex = 0;
   int _correctAnswersCount = 0;
   bool _isQuizFinished = false;
+  int? _selectedAnswer;
 
   final List<Map<String, dynamic>> _quizData = [
     {
@@ -122,22 +123,34 @@ class _QuizPageState extends State<QuizPage> {
   ];
 
   void _nextQuestion(int selectedIndex) {
-    final correctAnswerIndex = _quizData[_currentQuestionIndex]['correctAnswerIndex'];
+  final correctAnswerIndex = _quizData[_currentQuestionIndex]['correctAnswerIndex'];
+  bool isCorrect = selectedIndex == correctAnswerIndex;
 
-    if (selectedIndex == correctAnswerIndex) {
+  // Update the UI immediately to reflect the selected answer
+  setState(() {
+    _selectedAnswer = selectedIndex;
+  });
+
+  // Wait for a short duration before moving to the next question
+  Future.delayed(const Duration(milliseconds: 500), () {
+    if (isCorrect) {
       _correctAnswersCount++;
     }
 
     if (_currentQuestionIndex < _quizData.length - 1) {
       setState(() {
         _currentQuestionIndex++;
+        _selectedAnswer = null; // Reset selected answer for the next question
       });
     } else {
       setState(() {
         _isQuizFinished = true;
       });
     }
-  }
+  });
+}
+
+
 
   void _restartQuiz() {
     setState(() {
@@ -159,6 +172,7 @@ class _QuizPageState extends State<QuizPage> {
 
   Widget buildQuiz() {
   final currentQuestion = _quizData[_currentQuestionIndex];
+  final correctAnswerIndex = currentQuestion['correctAnswerIndex'];
   return Container(
     padding: const EdgeInsets.all(16.0),
     decoration: const BoxDecoration(
@@ -190,16 +204,21 @@ class _QuizPageState extends State<QuizPage> {
             physics: const BouncingScrollPhysics(), // Add a bouncing effect to the list
             itemBuilder: (context, index) {
               String option = currentQuestion['options'][index];
+              bool isSelected = index == _selectedAnswer;
+              Color backgroundColor = isSelected
+                  ? (isSelected && index == correctAnswerIndex ? Colors.green : Colors.red)
+                  : const Color.fromARGB(255, 218, 238, 247); // Neutral color for unselected options
+
               return ElevatedButton(
                 onPressed: () => _nextQuestion(index),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 218, 238, 247),
+                  backgroundColor: backgroundColor, // Use the backgroundColor variable here
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0), // Rounded corners
                   ),
                 ),
                 child: Text(
-                  option, 
+                  option,
                   style: const TextStyle(
                     fontSize: 18,
                     color: Colors.black87, // Custom color for text
@@ -215,6 +234,7 @@ class _QuizPageState extends State<QuizPage> {
     ),
   );
 }
+
 
   Widget buildResults() {
     return Container(
