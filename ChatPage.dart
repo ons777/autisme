@@ -56,37 +56,33 @@ class _ChatPageState extends State<ChatPage>
 
       for (var doc in snapshot.docs) {
         final data = doc.data();
-        if (data != null){
-          print('Processing document with ID: ${doc.id}');
-        final timestamp = data['createdAt'] as Timestamp?;
-        final createdAt =
-            timestamp?.millisecondsSinceEpoch ?? DateTime.now().millisecondsSinceEpoch;
+        print('Processing document with ID: ${doc.id}');
+      final timestamp = data['createdAt'] as Timestamp?;
+      final createdAt =
+          timestamp?.millisecondsSinceEpoch ?? DateTime.now().millisecondsSinceEpoch;
 
-        DocumentSnapshot userData =
-            await FirebaseFirestore.instance.collection('users').doc(data['uid']).get();
-            if (!userData.exists) {
-          print('User data not found for UID: ${data['uid']}'); // Debug print
-          continue;
-        }
-
-        Map<String, dynamic> userInfo = userData.data() as Map<String, dynamic>;
-        
-        final message = types.TextMessage(
-          author: types.User(
-            id: data['uid'],
-            firstName: userInfo['name'],
-            imageUrl: userInfo['profilePictureUrl'],
-          ),
-          createdAt: createdAt,
-          id: doc.id,
-          text: data['text'],
-        );
-
-        fetchedMessages.add(message);
-      }else {
-        print('Document data is null for ID: ${doc.id}'); // Debug print
+      DocumentSnapshot userData =
+          await FirebaseFirestore.instance.collection('users').doc(data['uid']).get();
+          if (!userData.exists) {
+        print('User data not found for UID: ${data['uid']}'); // Debug print
+        continue;
       }
-    }
+
+      Map<String, dynamic> userInfo = userData.data() as Map<String, dynamic>;
+      
+      final message = types.TextMessage(
+        author: types.User(
+          id: data['uid'],
+          firstName: userInfo['name'],
+          imageUrl: userInfo['profilePictureUrl'],
+        ),
+        createdAt: createdAt,
+        id: doc.id,
+        text: data['text'],
+      );
+
+      fetchedMessages.add(message);
+        }
 
 
       if (mounted) {
@@ -100,57 +96,72 @@ class _ChatPageState extends State<ChatPage>
   }
 
   void _handleSendPressed(types.PartialText message) async {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      if (message.text.isNotEmpty) {
+  final currentUser = FirebaseAuth.instance.currentUser;
+  if (currentUser != null) {
+    if (message.text.isNotEmpty) {
+       final userData = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .get();
+      if (userData.exists) {
+        final profilePictureUrl = userData.data()?['profilePictureUrl'];
+        
+        // Add message to public_messages with profilePictureUrl
         FirebaseFirestore.instance.collection('public_messages').add({
           'text': message.text,
           'createdAt': FieldValue.serverTimestamp(),
           'uid': currentUser.uid,
+          'profilePictureUrl': profilePictureUrl, // Include profilePictureUrl
         });
-      } else {
-        final file = await FilePicker.platform.pickFiles(type: FileType.any);
 
-        if (file != null && file.files.isNotEmpty) {
-          final filePath = file.files.single.path!;
-          final fileExtension = filePath.split('.').last;
-
-          String mimeType = '';
-          switch (fileExtension) {
-            case 'jpg':
-            case 'jpeg':
-              mimeType = 'image/jpeg';
-              break;
-            case 'png':
-              mimeType = 'image/png';
-              break;
-            case 'pdf':
-              mimeType = 'application/pdf';
-              break;
-            default:
-              print('Unsupported file type');
-              return;
-          }
-
-          final fileMessage = types.FileMessage(
-            author: _user,
-            createdAt: DateTime.now().millisecondsSinceEpoch,
-            id: const Uuid().v4(),
-            mimeType: mimeType,
-            name: file.files.single.name,
-            size: file.files.single.size,
-            uri: filePath,
-          );
-
-          _addMessage(fileMessage);
-        } else {
-          print('File picking canceled');
-        }
+    } else {
+        print('User data not found');
       }
     } else {
-      print("No authenticated user found.");
+
+      final file = await FilePicker.platform.pickFiles(type: FileType.any);
+
+      if (file != null && file.files.isNotEmpty) {
+        final filePath = file.files.single.path!;
+        final fileExtension = filePath.split('.').last;
+
+        String mimeType = '';
+        switch (fileExtension) {
+          case 'jpg':
+          case 'jpeg':
+            mimeType = 'image/jpeg';
+            break;
+          case 'png':
+            mimeType = 'image/png';
+            break;
+          case 'pdf':
+            mimeType = 'application/pdf';
+            break;
+          default:
+            print('Unsupported file type');
+            return;
+        }
+
+        final fileMessage = types.FileMessage(
+          author: _user,
+          createdAt: DateTime.now().millisecondsSinceEpoch,
+          id: const Uuid().v4(),
+          mimeType: mimeType,
+          name: file.files.single.name,
+          size: file.files.single.size,
+          uri: filePath,
+        );
+
+        _addMessage(fileMessage);
+      } else {
+        print('File picking canceled');
+      }
     }
+  } else {
+    print("No authenticated user found.");
   }
+}
+
 
   @override
   void dispose() {
@@ -303,4 +314,6 @@ class _ChatPageState extends State<ChatPage>
   Future<void> deleteMessage(String messageId) async {
   await FirebaseFirestore.instance.collection('public_messages').doc(messageId).delete();
 }
+
+
 }
