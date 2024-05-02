@@ -1,25 +1,22 @@
-// ignore_for_file: avoid_print, library_private_types_in_public_api, use_build_context_synchronously
-
-import 'face.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'forgot_password.dart';
+import 'face.dart';
 
 class LoginenfantPage extends StatefulWidget {
-  const LoginenfantPage({super.key});
+  const LoginenfantPage({Key? key}) : super(key: key);
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _LoginenfantPageState createState() => _LoginenfantPageState();
 }
 
-class _LoginPageState extends State<LoginenfantPage> {
+class _LoginenfantPageState extends State<LoginenfantPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailenfantController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isObscure = true;
-
-  String _useremailenfant = '';
+  String _email = '';
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +47,7 @@ class _LoginPageState extends State<LoginenfantPage> {
                         onTap: () {
                           Navigator.pop(context);
                         },
-                        child: const Icon(
+                        child: Icon(
                           Icons.arrow_back,
                           size: 24,
                           color: Colors.black,
@@ -66,7 +63,7 @@ class _LoginPageState extends State<LoginenfantPage> {
                         ),
                       ),
                       const Text(
-                        'emailenfant',
+                        'Email',
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 16,
@@ -75,15 +72,15 @@ class _LoginPageState extends State<LoginenfantPage> {
                       ),
                       const SizedBox(height: 10),
                       TextFormField(
-                        controller: _emailenfantController,
+                        controller: _emailController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Veuillez entrer votre emailenfant';
+                            return 'Veuillez entrer votre email';
                           }
                           return null;
                         },
                         decoration: const InputDecoration(
-                          hintText: 'Entrez votre emailenfant',
+                          hintText: 'Entrez votre email',
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(color: Colors.grey),
                             borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -97,7 +94,7 @@ class _LoginPageState extends State<LoginenfantPage> {
                       ),
                       const SizedBox(height: 20),
                       const Text(
-                        'Password',
+                        'Mot de passe',
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 16,
@@ -124,7 +121,7 @@ class _LoginPageState extends State<LoginenfantPage> {
                             ),
                             onPressed: () {
                               setState(() {
-                                _isObscure = !_isObscure; // Inverse l'état
+                                _isObscure = !_isObscure;
                               });
                             },
                           ),
@@ -166,42 +163,44 @@ class _LoginPageState extends State<LoginenfantPage> {
                         child: ElevatedButton(
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
+                              final email = _emailController.text.trim();
+                              final password = _passwordController.text.trim();
+                              print(email);
+                              print(password);
                               try {
-                                print('Attempting to sign in with email: ${_emailenfantController.text.trim()}');
-                                final userCredential = await FirebaseAuth.instance.signInWithCredential(
-                                  EmailAuthProvider.credential(
-                                    email: _emailenfantController.text.trim(),
-                                    password: _passwordController.text.trim(),
-                                  ),
+                                // Sign in with email and password
+                                final userCredential = await FirebaseAuth
+                                    .instance
+                                    .signInWithEmailAndPassword(
+                                  email: email,
+                                  password: password,
                                 );
 
                                 // Fetch user data after successful login
                                 await fetchUserData(
-                                    _emailenfantController.text.trim());
+                                    userCredential.user!.uid, context);
 
-                                // Navigate to  FacePage
+                                // Navigate to FacePage
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => FacePage(
-                                      useremailenfant: _useremailenfant,
-                                      informations: const {},
+                                      useremailenfant: email,
+                                      informations: {}, // Additional information can be passed here
                                     ),
                                   ),
                                 );
                               } catch (e) {
-      if (e is FirebaseAuthException) {
-        print('Error code: ${e.code}');
-        print('Error message: ${e.message}');
-        if (e.code == 'user-not-found') {
-          print('No user found for that email.');
-        } else if (e.code == 'wrong-password') {
-          print('Wrong password provided for that user.');
-        }
-      }
-      print('Failed to sign in: $e');
-    }
-
+                                print('Failed to sign in: $e');
+                                // Handle sign-in errors (e.g., display error message)
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content:
+                                        Text('Email ou mot de passe incorrect'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -227,8 +226,8 @@ class _LoginPageState extends State<LoginenfantPage> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      const Padding(
-                        padding: EdgeInsets.only(left: 8.0),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                         ),
@@ -244,38 +243,36 @@ class _LoginPageState extends State<LoginenfantPage> {
     );
   }
 
-  Future<void> fetchUserData(String emailenfant) async {
+  Future<void> fetchUserData(String id, BuildContext context) async {
     try {
-      final QuerySnapshot<Map<String, dynamic>> snapshot =
-          await FirebaseFirestore.instance
-              .collection('enfants')
-              .where('emailenfant', isEqualTo: emailenfant)
-              .limit(1)
-              .get();
+      final DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await FirebaseFirestore.instance.collection('enfants').doc(id).get();
 
-      if (snapshot.docs.isNotEmpty) {
-        final userData = snapshot.docs.first.data();
-        setState(() {
-          _useremailenfant = userData['emailenfant'] ?? '';
-        });
-        // Autres opérations après la connexion réussie, par exemple, navigation vers une autre page
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => FacePage(
-              useremailenfant: _useremailenfant,
-              informations: const {}, // Les informations supplémentaires peuvent être transmises ici
-            ),
+      if (snapshot.exists) {
+        if (mounted) {
+          // Check if the widget is still mounted
+          setState(() {
+            _email = snapshot.data()!['emailenfant'];
+          });
+        }
+      } else {
+        print('User document does not exist');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Email ou mot de passe incorrect'),
+            backgroundColor: Colors.red,
           ),
         );
-      } else {
-        // Aucun utilisateur trouvé avec les identifiants fournis
-        print('Utilisateur non trouvé');
-        // Afficher un message d'erreur ou une boîte de dialogue pour informer l'utilisateur
       }
     } catch (e) {
-      // Gérer les erreurs lors de la récupération des données utilisateur
-      print('Erreur lors de la récupération des données utilisateur: $e');
+      print('Error fetching user data: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              'Erreur lors de la récupération des données de l\'utilisateur'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 }
