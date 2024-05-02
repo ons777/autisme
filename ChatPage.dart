@@ -52,17 +52,25 @@ class _ChatPageState extends State<ChatPage>
         .snapshots()
         .listen((snapshot) async {
       List<types.Message> fetchedMessages = [];
+      print('Snapshot received with ${snapshot.docs.length} documents'); 
 
       for (var doc in snapshot.docs) {
         final data = doc.data();
+        if (data != null){
+          print('Processing document with ID: ${doc.id}');
         final timestamp = data['createdAt'] as Timestamp?;
         final createdAt =
             timestamp?.millisecondsSinceEpoch ?? DateTime.now().millisecondsSinceEpoch;
 
         DocumentSnapshot userData =
             await FirebaseFirestore.instance.collection('users').doc(data['uid']).get();
-        Map<String, dynamic> userInfo = userData.data() as Map<String, dynamic>;
+            if (!userData.exists) {
+          print('User data not found for UID: ${data['uid']}'); // Debug print
+          continue;
+        }
 
+        Map<String, dynamic> userInfo = userData.data() as Map<String, dynamic>;
+        
         final message = types.TextMessage(
           author: types.User(
             id: data['uid'],
@@ -75,13 +83,19 @@ class _ChatPageState extends State<ChatPage>
         );
 
         fetchedMessages.add(message);
+      }else {
+        print('Document data is null for ID: ${doc.id}'); // Debug print
       }
+    }
+
 
       if (mounted) {
         setState(() {
           _messages = fetchedMessages;
         });
-      }
+      print('Messages loaded: ${_messages.length}'); // Debug print
+    }
+
     });
   }
 
@@ -289,6 +303,4 @@ class _ChatPageState extends State<ChatPage>
   Future<void> deleteMessage(String messageId) async {
   await FirebaseFirestore.instance.collection('public_messages').doc(messageId).delete();
 }
-
-
 }
