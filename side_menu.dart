@@ -1,32 +1,45 @@
 import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'login.dart';
+import 'quizParents .dart';
 import 'welcome.dart';
 import 'settings.dart';
 import 'profile.dart';
-import 'quizParents.dart';
+import 'ressources.dart';
+import 'thememodel.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider<ThemeModel>(
+      create: (_) => ThemeModel(),
+      child: MaterialApp(
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          fontFamily: 'Montserrat',
+        ),
+        home: SideMenuPage(),
+      ),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Autisme App',
-      home: SideMenuPage(),
+      home: const SideMenuPage(),
     );
   }
 }
 
 class SideMenuPage extends StatefulWidget {
-  const SideMenuPage({super.key});
+  const SideMenuPage({Key? key}) : super(key: key);
 
   @override
   _SideMenuPageState createState() => _SideMenuPageState();
@@ -153,129 +166,208 @@ class _SideMenuPageState extends State<SideMenuPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          UserAccountsDrawerHeader(
-            accountName: Text(
-              userName.isNotEmpty ? userName : '',
-              style: const TextStyle(color: Colors.black),
-            ),
-            accountEmail: Text(
-              userEmail.isNotEmpty ? userEmail : '',
-              style: const TextStyle(color: Colors.black),
-            ),
-            currentAccountPicture: FutureBuilder<String>(
-              future: fetchUserProfilePicture(), // Fetch user profile picture
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasData) {
-                  return CircleAvatar(
-                    backgroundImage: AssetImage(
-                        snapshot.data!), // Display user profile picture
-                  );
-                } else {
-                  return const CircleAvatar(
-                    backgroundImage:
-                        AssetImage('assets/gnome7.jpg'), // Placeholder image
-                  );
-                }
-              },
-            ),
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/b1.jpg'),
-                fit: BoxFit.cover,
+    return Consumer<ThemeModel>(builder: (context, themeProvider, child) {
+      return Drawer(
+        child: Container(
+          color: themeProvider.isDarkMode
+              ? Colors.grey[900]
+              : Colors.white, // Changer la couleur de fond en fonction du thème
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              UserAccountsDrawerHeader(
+                accountName: Text(
+                  userName.isNotEmpty ? userName : '',
+                  style: const TextStyle(color: Colors.black),
+                ),
+                accountEmail: Text(
+                  userEmail.isNotEmpty ? userEmail : '',
+                  style: TextStyle(color: Colors.black),
+                ),
+                currentAccountPicture: FutureBuilder<String>(
+                  future:
+                      fetchUserProfilePicture(), // Fetch user profile picture
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshot.hasData) {
+                      return CircleAvatar(
+                        backgroundImage: AssetImage(
+                            snapshot.data!), // Display user profile picture
+                      );
+                    } else {
+                      return const CircleAvatar(
+                        backgroundImage: AssetImage(
+                            'assets/gnome7.jpg'), // Placeholder image
+                      );
+                    }
+                  },
+                ),
+                decoration: BoxDecoration(
+                  color: themeProvider.isDarkMode
+                      ? Colors.grey[900]
+                      : Colors.white, // Changer la couleur de fond
+                  image: DecorationImage(
+                    image: AssetImage('assets/b1.jpg'),
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.handshake_rounded),
-            title: const Text('Bienvenue'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const WelcomePage()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('Profil'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfilePage()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.folder),
-            title: const Text('Resources'),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: const Icon(Icons.folder),
-            title: const Text('Quiz'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const QuizPage()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Paramètres'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsPage()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.exit_to_app),
-            title: const Text('Se déconnecter'),
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text(
-                      'Déconnexion',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    content: const Text('Voulez-vous vraiment vous déconnecter ?'),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context)
-                              .pop(); // Fermer la boîte de dialogue
-                        },
-                        child: const Text('Non'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          FirebaseAuth.instance.signOut(); // Se déconnecter
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const LoginPage()),
-                          ); // Naviguer vers la page de connexion
-                        },
-                        child: const Text('Oui'),
-                      ),
-                    ],
+              ListTile(
+                leading: Icon(Icons.handshake_rounded,
+                    color:
+                        themeProvider.isDarkMode ? Colors.white : Colors.black),
+                title: Text('Bienvenue',
+                    style: TextStyle(
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.black)),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const WelcomePage()),
                   );
                 },
-              );
-            },
+              ),
+              ListTile(
+                leading: Icon(Icons.person,
+                    color:
+                        themeProvider.isDarkMode ? Colors.white : Colors.black),
+                title: Text('Profil',
+                    style: TextStyle(
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.black)),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ProfilePage()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.folder,
+                    color:
+                        themeProvider.isDarkMode ? Colors.white : Colors.black),
+                title: Text('Resources',
+                    style: TextStyle(
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.black)),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const RessourcesPage()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.folder,
+                    color:
+                        themeProvider.isDarkMode ? Colors.white : Colors.black),
+                title: Text('Quiz',
+                    style: TextStyle(
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.black)),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const QuizPage()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.settings,
+                    color:
+                        themeProvider.isDarkMode ? Colors.white : Colors.black),
+                title: Text('Paramètres',
+                    style: TextStyle(
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.black)),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const SettingsPage()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.exit_to_app,
+                    color:
+                        themeProvider.isDarkMode ? Colors.white : Colors.black),
+                title: Text('Se déconnecter',
+                    style: TextStyle(
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.black)),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        backgroundColor: themeProvider.isDarkMode
+                            ? Colors.grey[900]
+                            : Colors.grey[200],
+                        title: Text(
+                          'Déconnexion',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: themeProvider.isDarkMode
+                                  ? Colors.white
+                                  : Colors.black),
+                        ),
+                        content: Text('Voulez-vous vraiment vous déconnecter ?',
+                            style: TextStyle(
+                                color: themeProvider.isDarkMode
+                                    ? Colors.white
+                                    : Colors.black)),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context)
+                                  .pop(); // Fermer la boîte de dialogue
+                            },
+                            child: Text(
+                              'Non',
+                              style: TextStyle(
+                                  color: themeProvider.isDarkMode
+                                      ? Colors.white
+                                      : Colors.black),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              FirebaseAuth.instance.signOut(); // Se déconnecter
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const LoginPage()),
+                              ); // Naviguer vers la page de connexion
+                            },
+                            child: Text(
+                              'Oui',
+                              style: TextStyle(
+                                  color: themeProvider.isDarkMode
+                                      ? Colors.white
+                                      : Colors.black),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        ),
+      );
+    });
   }
 }
