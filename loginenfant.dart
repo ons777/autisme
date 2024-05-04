@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, avoid_print, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,7 +7,7 @@ import 'forgot_password.dart';
 import 'face.dart';
 
 class LoginenfantPage extends StatefulWidget {
-  const LoginenfantPage({Key? key}) : super(key: key);
+  const LoginenfantPage({super.key});
 
   @override
   _LoginenfantPageState createState() => _LoginenfantPageState();
@@ -16,7 +18,6 @@ class _LoginenfantPageState extends State<LoginenfantPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isObscure = true;
-  String _email = '';
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +48,7 @@ class _LoginenfantPageState extends State<LoginenfantPage> {
                         onTap: () {
                           Navigator.pop(context);
                         },
-                        child: Icon(
+                        child: const Icon(
                           Icons.arrow_back,
                           size: 24,
                           color: Colors.black,
@@ -162,47 +163,51 @@ class _LoginenfantPageState extends State<LoginenfantPage> {
                       Center(
                         child: ElevatedButton(
                           onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              final email = _emailController.text.trim();
-                              final password = _passwordController.text.trim();
-                              print(email);
-                              print(password);
-                              try {
-                                // Sign in with email and password
-                                final userCredential = await FirebaseAuth
-                                    .instance
-                                    .signInWithEmailAndPassword(
-                                  email: email,
-                                  password: password,
-                                );
+  if (_formKey.currentState!.validate()) {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    try {
+      // First, check if the user with this email is in the 'enfants' collection
+      final isValidUser = await isEmailInEnfantsCollection(email);
+      if (!isValidUser) {
+        // If not a valid user, show an error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Accès non autorisé pour les parents.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return; // Stop further execution
+      }
 
-                                // Fetch user data after successful login
-                                await fetchUserData(
-                                    userCredential.user!.uid, context);
+      // Proceed to sign in with email and password if user is validated
+      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-                                // Navigate to FacePage
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => FacePage(
-                                      useremailenfant: email,
-                                      informations: {}, // Additional information can be passed here
-                                    ),
-                                  ),
-                                );
-                              } catch (e) {
-                                print('Failed to sign in: $e');
-                                // Handle sign-in errors (e.g., display error message)
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content:
-                                        Text('Email ou mot de passe incorrect'),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              }
-                            }
-                          },
+      // Navigate to FacePage
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FacePage(
+            useremailenfant: email,
+            informations: const {}, userEmail: '', userName: '', // Additional information can be passed here
+          ),
+        ),
+      );
+    } catch (e) {
+      print('Failed to sign in: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Email ou mot de passe incorrect'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+},
+
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
                                 const Color.fromARGB(255, 7, 155, 205),
@@ -226,8 +231,8 @@ class _LoginenfantPageState extends State<LoginenfantPage> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 8.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                         ),
@@ -249,16 +254,25 @@ class _LoginenfantPageState extends State<LoginenfantPage> {
           await FirebaseFirestore.instance.collection('enfants').doc(id).get();
 
       if (snapshot.exists) {
-        if (mounted) {
-          // Check if the widget is still mounted
-          setState(() {
-            _email = snapshot.data()!['emailenfant'];
-          });
+        if (await isUserInUsersCollection(id)) {
+          // Handle the case where a "users" collection user tries to login here
+          print('Login attempt by a user from the "users" collection.');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Accès non autorisé pour les parents.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        } else {
+          // Proceed if the user is indeed from the "enfants" collection
+          if (mounted) {
+            setState(() {});
+          }
         }
       } else {
-        print('User document does not exist');
+        print('User document does not exist in "enfants" collection');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Email ou mot de passe incorrect'),
             backgroundColor: Colors.red,
           ),
@@ -267,7 +281,7 @@ class _LoginenfantPageState extends State<LoginenfantPage> {
     } catch (e) {
       print('Error fetching user data: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text(
               'Erreur lors de la récupération des données de l\'utilisateur'),
           backgroundColor: Colors.red,
@@ -275,4 +289,20 @@ class _LoginenfantPageState extends State<LoginenfantPage> {
       );
     }
   }
+Future<bool> isUserInUsersCollection(String userId) async {
+    final DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    return userSnapshot.exists;
+  }
+}
+
+Future<bool> isEmailInEnfantsCollection(String email) async {
+  // Query the 'enfants' collection for a document with the given email
+  final querySnapshot = await FirebaseFirestore.instance
+      .collection('enfants')
+      .where('email', isEqualTo: email)
+      .get();
+
+  // If any documents are found, the user is valid
+  return querySnapshot.docs.isNotEmpty;
 }
