@@ -5,6 +5,7 @@ import 'espace.dart';
 import 'face.dart';
 import 'loginenfant.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -34,7 +35,7 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(
               builder: (context) => FacePage(
                 useremailenfant: args['useremailenfant'],
-                informations: args['informations'],
+                informations: args['informations'], userEmail: '', userName: '',
               ),
             );
           }
