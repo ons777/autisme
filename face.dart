@@ -1,15 +1,16 @@
 // ignore_for_file: prefer_const_constructors, avoid_print, library_private_types_in_public_api
 
 import 'dart:math';
-import 'ChatPage.dart';
 import 'activites.dart';
 import 'login.dart';
+import 'ppp.dart';
 import 'profile.dart';
 import 'settings.dart';
+import 'sidemenu_enfant.dart';
 import 'welcome.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'calender.dart';
+import 'clavierFem.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
@@ -26,13 +27,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const FacePage(useremailenfant: '', informations: {},),
+      home: const FacePage(useremailenfant: '', informations: {}, userEmail: '', userName: '',),
     );
   }
 }
 
 class FacePage extends StatelessWidget {
-  const FacePage({super.key, required String useremailenfant, required Map informations});
+  const FacePage({super.key, required String useremailenfant, required Map informations, required String userEmail, required String userName});
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +50,7 @@ class FacePage extends StatelessWidget {
         ),
       ),
       drawer: const Drawer(
-        child: SideMenuContent(),
+        child: SideMenu2Page(),
       ),
       body: Stack(
         children: [
@@ -69,12 +70,12 @@ class FacePage extends StatelessWidget {
               crossAxisCount: 2,
               children: [
                 CustomButton(
-                  icon: Icons.event,
-                  label: 'Événements',
+                  icon: Icons.add_comment_rounded,
+                  label: 'Clavier',
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const CalendarPage()),
+                      MaterialPageRoute(builder: (context) => CommunicationAid()),
                     );
                   },
                 ),
@@ -88,58 +89,22 @@ class FacePage extends StatelessWidget {
                     );
                   },
                 ),
+                CustomButton(
+                  icon: Icons.book,
+                  label: 'story',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => StorySelectionPage()),
+                    );
+                  },
+                ),
               ],
             ),
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.shifting,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: 'Chat',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.folder),
-            label: 'Resources',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        onTap: (int index) {
-          switch (index) {
-            case 0:
-              // Navigate to Home
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const FacePage(useremailenfant: '', informations: {},)),
-              );
-              break;
-            case 1:
-              // Navigate to Chat
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ChatPage()),
-              );
-              break;
-            case 2:
-              // Navigate to Resources
-              break;
-            case 3:
-              // Navigate to Profile
-              break;
-          }
-        },
-      ),
+      
     );
   }
 }
