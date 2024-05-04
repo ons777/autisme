@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'choix.dart';
@@ -279,7 +280,8 @@ class _FormulaireDialogState extends State<FormulaireDialog> {
       ),
     );
   }
-void _validerFormulaire() async {
+
+  void _validerFormulaire() async {
     final form = _formKey.currentState;
     if (form != null && _formKey.currentState!.validate()) {
       form.save();
@@ -293,6 +295,7 @@ void _validerFormulaire() async {
             emailenfant: _emailenfant,
             motDePasse: _motDePasse,
             pseudo: _pseudo,
+            emailParent: widget.userEmail,
           ));
         });
 
@@ -324,18 +327,28 @@ void _validerFormulaire() async {
       },
     );
   }
-Future<bool> ajouterEnfant(String pseudo, String emailenfant,
+
+  Future<bool> ajouterEnfant(String pseudo, String emailenfant,
       String motDePasse, String emailParent) async {
-    print("object");
     try {
-      print("try");
-      await FirebaseFirestore.instance.collection('enfants').add({
+      // Crée un nouvel ID de document
+      DocumentReference docRef =
+          FirebaseFirestore.instance.collection('enfants').doc();
+
+      // Ajouter l'enfant dans l'espace d'authentification
+      FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: emailenfant, password: motDePasse);
+
+      // Ajoute les données à Firestore
+      await docRef.set({
+        'uid': docRef.id, // Ajoute l'ID du document aux données
         'pseudo': pseudo,
         'emailenfant': emailenfant,
         'motDePasse': motDePasse,
         'emailParent': emailParent,
       });
-      print('Enfant ajouté avec succès à Firestore !');
+
+      print('Enfant ajouté avec succès à Firestore avec l\'ID: ${docRef.id} !');
       return true; // Retourne vrai si l'enfant est ajouté avec succès
     } catch (error) {
       print('Erreur lors de l\'ajout de l\'enfant à Firestore : $error');
