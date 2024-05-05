@@ -1,5 +1,3 @@
-// ignore_for_file: library_private_types_in_public_api, file_names
-
 import 'package:flutter/material.dart';
 
 import 'ppp.dart';
@@ -30,35 +28,36 @@ class _SoccerStoryState extends State<SoccerStory> {
     "You suggest focusing on offense to increase the team's scoring opportunities. The team agrees, and you feel motivated to lead the attack.",
     "At the end of the match, you reflect on your experiences. Whether you won, learned something new, or helped a teammate, you feel good about your contributions.",
     "You decide to watch the game from the sidelines. While watching, you notice a player on the opposing team making a move you've never seen before. It sparks your curiosity and inspires you to practice more.",
+    "You decide to leave them alone and will try to cheer them up after the game ends.",
   ];
 
   final List<List<String>> _choices = [
-  ["Start the game!"],
-  ["Join in and play", "Watch from the sidelines"],
-  ["Continue"],
-  ["Encourage them", "Leave them alone"],
-  ["Continue"],
-  ["Focus on offense", "Focus on defense"],
-  ["Continue"],
-  ["Finish"], // Final reflection
-  ["Finish"], // Scene: You decide to watch the game from the sidelines (spark curiosity)
-  ["Finish"], // Scene: You decide to watch the game from the sidelines (learning experience)
-  ["Finish"], // Scene: At the end of the match (reflection)
-];
+    ["Start the game!"],
+    ["Join in and play", "Watch from the sidelines"],
+    ["Continue"],
+    ["Encourage them", "Leave them alone"],
+    ["Continue"],
+    ["Focus on defense", "Focus on offense"],
+    ["Continue"],
+    ["Finish"],
+    ["Finish"],
+    ["Finish"],
+    ["Finish"],
+  ];
 
-
+  // Map linking story scenes with the choices leading to the next scenes
   final Map<int, Map<int, int>> _nextSceneMap = {
-  1: {0: 2, 1: 9}, // Join in and play leads to passing the ball, Watch from the sidelines leads to choosing a role
-  3: {0: 4, 1: 9}, // Encourage them leads to encouraging, Leave them alone leads to reflecting
-  4: {0: 5, 1: 9}, // Both choices lead to the same scene of reflecting
-  5: {0: 7, 1: 6}, // Both choices lead to the same scene of reflecting
-  6: {0: 8, 1: 7}, // Focus on offense leads to offense scene, Focus on defense leads to defense scene
-};
-
+    0: {0: 1},
+    1: {0: 2, 1: 9},
+    2: {0: 3},
+    3: {0: 4, 1: 10},
+    4: {0: 5},
+    5: {0: 6, 1: 7},
+    6: {0: 8},
+  };
 
   void _nextScene(int choiceIndex) {
-  setState(() {
-    if (_storyIndex < _storyTexts.length - 1) {
+    setState(() {
       _previousScenes.add(_storyIndex);
 
       if (_nextSceneMap.containsKey(_storyIndex)) {
@@ -67,17 +66,15 @@ class _SoccerStoryState extends State<SoccerStory> {
           _storyIndex = nextSceneOptions[choiceIndex]!;
         }
       } else {
-        _storyIndex++;
+        if (_storyIndex == 7 || _storyIndex == 8 || _storyIndex == 9 || _storyIndex == 10) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const StorySelectionPage()),
+          );
+        }
       }
-    } else {
-      // End of the story
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const StorySelectionPage()),
-      );
-    }
-  });
-}
+    });
+  }
 
   void _goBack() {
     setState(() {
@@ -102,7 +99,7 @@ class _SoccerStoryState extends State<SoccerStory> {
       body: Stack(
         children: [
           Image.asset(
-            'assets/Dream_clouds.jpeg', // Ensure you have a soccer field image in assets
+            'assets/Dream_clouds.jpeg',
             fit: BoxFit.cover,
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
@@ -127,9 +124,23 @@ class _SoccerStoryState extends State<SoccerStory> {
                       ],
                     ),
                     padding: const EdgeInsets.all(20.0),
-                    child: Text(
-                      _storyTexts[_storyIndex],
-                      style: const TextStyle(fontSize: 20.0),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _storyTexts[_storyIndex],
+                            style: const TextStyle(fontSize: 20.0),
+                          ),
+                        ),
+                        // Add an image widget below the text
+                        if (_storyIndex >= 0 && _storyIndex <= 10)
+                          Image.asset(
+                            'assets/sport0${_storyIndex + 1}.jpeg',
+                            fit: BoxFit.cover,
+                            width: MediaQuery.of(context).size.width,
+                            height: 200.0,
+                          ),
+                      ],
                     ),
                   ),
                 ),
@@ -144,7 +155,7 @@ class _SoccerStoryState extends State<SoccerStory> {
                       final index = entry.key;
                       final choice = entry.value;
                       return Padding(
-                        padding: EdgeInsets.only(bottom: index == 0 ? 10.0 : 0.0),
+                        padding: const EdgeInsets.only(bottom: 10.0),
                         child: ElevatedButton(
                           onPressed: () => _nextScene(index),
                           style: ElevatedButton.styleFrom(
