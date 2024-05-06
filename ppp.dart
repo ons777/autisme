@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'quizFriends.dart';
-import 'quizSchool.dart'; // Import the QuizFriendsPage
+import 'quizSchool.dart';
+import 'quizSports.dart'; // Import the QuizFriendsPage
 
 void main() {
   runApp(MaterialApp(
@@ -41,10 +42,10 @@ class StorySelectionPage extends StatelessWidget {
             itemCount: 4, // Number of stories
             itemBuilder: (BuildContext context, int index) {
               List<Map<String, String>> stories = [
-                {"title": "Friendship Story", "imagePath": "assets/gnome3.jpg"},
-                {"title": "school Story", "imagePath": "assets/gnome6.jpg"},
-                {"title": "Mystery Story", "imagePath": "assets/gnome4.jpg"},
-                {"title": "Science Fiction Story", "imagePath": "assets/gnome7.jpg"}
+                {"title": "Friendship Story", "imagePath": "assets/friendquiz.jpeg"},
+                {"title": "school Story", "imagePath": "assets/schoolquiz.jpeg"},
+                {"title": "Sport Story", "imagePath": "assets/sportquiz.jpeg"},
+                {"title": "Family Story", "imagePath": "assets/familyquiz.jpeg"}
               ];
 
               return StoryCard(
@@ -54,6 +55,12 @@ class StorySelectionPage extends StatelessWidget {
                   // Conditional navigation based on the story title
                   if (stories[index]['title'] == "Friendship Story") {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const FriendshipStory()));
+                  }
+                  if (stories[index]['title'] == "Family Story") {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const FriendshipStory()));
+                  }
+                  if (stories[index]['title'] == "Sport Story") {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const SoccerStory()));
                   } else {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const SchoolStory()));
                   }
