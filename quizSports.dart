@@ -7,7 +7,7 @@ void main() {
 }
 
 class SoccerStory extends StatefulWidget {
-  const SoccerStory({super.key});
+  const SoccerStory({Key? key}) : super(key: key);
 
   @override
   _SoccerStoryState createState() => _SoccerStoryState();
@@ -15,37 +15,37 @@ class SoccerStory extends StatefulWidget {
 
 class _SoccerStoryState extends State<SoccerStory> {
   int _storyIndex = 0;
-  final List<int> _previousScenes = []; // Track previous scenes
+  final List<int> _previousScenes = []; // Suivre les scènes précédentes
 
   final List<String> _storyTexts = [
-    "It's your first big soccer match! You feel excited but also a bit nervous as you approach the field, hearing the cheers and chants from the crowd.",
-    "The game starts, and you see your teammates passing the ball. What do you want to do?",
-    "You decide to join in and pass the ball. You quickly get into the rhythm of the game, feeling less nervous and more excited.",
-    "During halftime, you notice a teammate looking upset about missing a goal. What do you do?",
-    "You approach your teammate and encourage them, saying everyone makes mistakes and there’s still half a game left to play. They smile and seem to feel better.",
-    "Your coach discusses strategies for the second half. What role do you want to take on?",
-    "You suggest focusing on defense to protect your lead. The team agrees, and you feel proud to contribute your ideas.",
-    "You suggest focusing on offense to increase the team's scoring opportunities. The team agrees, and you feel motivated to lead the attack.",
-    "At the end of the match, you reflect on your experiences. Whether you won, learned something new, or helped a teammate, you feel good about your contributions.",
-    "You decide to watch the game from the sidelines. While watching, you notice a player on the opposing team making a move you've never seen before. It sparks your curiosity and inspires you to practice more.",
-    "You decide to leave them alone and will try to cheer them up after the game ends.",
+    "C'est votre premier grand match de football ! Vous vous sentez excité mais aussi un peu nerveux à l'approche du terrain, entendant les acclamations et les chants de la foule.",
+    "Le jeu commence, et vous voyez vos coéquipiers passer le ballon. Que voulez-vous faire ?",
+    "Vous décidez de vous joindre et de passer le ballon. Vous entrez rapidement dans le rythme du jeu, vous sentant moins nerveux et plus excité.",
+    "Pendant la mi-temps, vous remarquez qu'un coéquipier a l'air contrarié d'avoir manqué un but. Que faites-vous ?",
+    "Vous approchez votre coéquipier et le encouragez, en lui disant que tout le monde fait des erreurs et qu'il reste encore une demi-partie à jouer. Il sourit et semble se sentir mieux.",
+    "Votre entraîneur discute des stratégies pour la deuxième mi-temps. Quel rôle voulez-vous prendre ?",
+    "Vous proposez de vous concentrer sur la défense pour protéger votre avance. L'équipe est d'accord, et vous vous sentez fier de contribuer vos idées.",
+    "Vous proposez de vous concentrer sur l'attaque pour augmenter les opportunités de marquer de l'équipe. L'équipe est d'accord, et vous vous sentez motivé pour mener l'attaque.",
+    "À la fin du match, vous réfléchissez à vos expériences. Que vous ayez gagné, appris quelque chose de nouveau ou aidé un coéquipier, vous vous sentez bien de votre contribution.",
+    "Vous décidez de regarder le match depuis la touche. En regardant, vous remarquez un joueur de l'équipe adverse effectuer un mouvement que vous n'avez jamais vu auparavant. Cela éveille votre curiosité et vous inspire à pratiquer davantage.",
+    "Vous décidez de les laisser tranquilles et essaierez de les réconforter après la fin du match.",
   ];
 
   final List<List<String>> _choices = [
-    ["Start the game!"],
-    ["Join in and play", "Watch from the sidelines"],
-    ["Continue"],
-    ["Encourage them", "Leave them alone"],
-    ["Continue"],
-    ["Focus on defense", "Focus on offense"],
-    ["Continue"],
-    ["Finish"],
-    ["Finish"],
-    ["Finish"],
-    ["Finish"],
+    ["Commencer le match !"],
+    ["Participer et jouer", "Regarder depuis la touche"],
+    ["Continuer"],
+    ["Les encourager", "Les laisser tranquilles"],
+    ["Continuer"],
+    ["Se concentrer sur la défense", "Se concentrer sur l'attaque"],
+    ["Continuer"],
+    ["Terminer"],
+    ["Terminer"],
+    ["Terminer"],
+    ["Terminer"],
   ];
 
-  // Map linking story scenes with the choices leading to the next scenes
+  // Carte liant les scènes de l'histoire avec les choix menant aux scènes suivantes
   final Map<int, Map<int, int>> _nextSceneMap = {
     0: {0: 1},
     1: {0: 2, 1: 9},
@@ -88,7 +88,7 @@ class _SoccerStoryState extends State<SoccerStory> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Soccer Game Day'),
+        title: const Text('Jour de Match de Football'),
         leading: _storyIndex > 0
             ? IconButton(
                 onPressed: _goBack,
@@ -132,7 +132,7 @@ class _SoccerStoryState extends State<SoccerStory> {
                             style: const TextStyle(fontSize: 20.0),
                           ),
                         ),
-                        // Add an image widget below the text
+                        // Ajouter un widget image sous le texte
                         if (_storyIndex >= 0 && _storyIndex <= 10)
                           Image.asset(
                             'assets/sport0${_storyIndex + 1}.jpeg',
