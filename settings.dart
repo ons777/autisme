@@ -1,67 +1,77 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-// For iOS style widgets
+import 'package:provider/provider.dart';
+import 'login.dart';
+import 'thememodel.dart';
+import 'account.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider<ThemeModel>(
+      create: (_) => ThemeModel(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false, // Hide debug banner for a cleaner look
-      title: 'Settings Page',
       theme: ThemeData(
-        primarySwatch: Colors.indigo, // A sophisticated primary color
-        hintColor: Colors.amber, // Accent color for contrast
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        switchTheme: SwitchThemeData(
-          thumbColor: MaterialStateProperty.all(Colors.indigoAccent),
-          trackColor: MaterialStateProperty.all(Colors.indigo[100]),
-        ),
-        textTheme: TextTheme(
-          bodyMedium: TextStyle(color: Colors.grey[600]),
-          titleMedium: TextStyle(color: Colors.indigo[400]),
-        ),
+        primarySwatch: Colors.blue,
+        fontFamily: 'Montserrat',
       ),
-      home: const SettingsPage(),
+      home: SettingsPage(),
     );
   }
 }
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key});
+  const SettingsPage({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _SettingsPageState createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends State<SettingsPage> {
   bool notificationEnabled = true;
   bool showActivityStatus = true;
-  bool darkModeEnabled = false; // New setting for dark mode
-  String language = 'English'; // New setting for language selection
+  bool showMessage = false; // Nouvelle variable pour le message de succès
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text('Paramètres'),
         elevation: 0,
-        backgroundColor: Theme.of(context).primaryColor,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
+            icon: Icon(Icons.search),
             onPressed: () {},
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: <Widget>[
+      body: Consumer<ThemeModel>(builder: (context, themeProvider, _) {
+        return ListView(padding: const EdgeInsets.all(16.0), children: <Widget>[
+          _buildSwitchTile(
+            title: 'Dark Mode',
+            subtitle: 'Enable dark theme for better night-time reading.',
+            value: themeProvider.isDarkMode,
+            onChanged: (bool value) async {
+              setState(() {
+                // Mettre à jour le thème de manière asynchrone
+                themeProvider.toggleTheme(value);
+              });
+            },
+          ),
           _buildSwitchTile(
             title: 'Enable Notifications',
             subtitle: 'Receive notifications for updates and announcements.',
@@ -82,23 +92,6 @@ class _SettingsPageState extends State<SettingsPage> {
               });
             },
           ),
-          _buildSwitchTile(
-            title: 'Dark Mode',
-            subtitle: 'Enable dark theme for better night-time reading.',
-            value: darkModeEnabled,
-            onChanged: (bool value) {
-              setState(() {
-                darkModeEnabled = value;
-                // Additional logic to toggle dark mode in your app
-              });
-            },
-          ),
-          _buildListTile(
-            title: 'Language',
-            subtitle: 'Select your preferred language.',
-            icon: Icons.language,
-            onTap: () => _showLanguageDialog(),
-          ),
           _buildListTile(
             title: 'Account',
             subtitle: 'Manage your account settings',
@@ -106,88 +99,108 @@ class _SettingsPageState extends State<SettingsPage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const AccountSettingsPage()),
+                MaterialPageRoute(
+                  builder: (context) => const UserProfile(),
+                ),
               );
             },
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSwitchTile({required String title, String? subtitle, required bool value, required ValueChanged<bool> onChanged}) {
-    return SwitchListTile(
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: subtitle != null ? Text(subtitle) : null,
-      value: value,
-      onChanged: onChanged,
-      activeColor: Theme.of(context).colorScheme.secondary,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 0),
-    );
-  }
-
-  Widget _buildListTile({required String title, String? subtitle, required IconData icon, required VoidCallback onTap}) {
-    return ListTile(
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: subtitle != null ? Text(subtitle) : null,
-      leading: Icon(icon, color: Theme.of(context).primaryColor),
-      onTap: onTap,
-    );
-  }
-
-  void _showLanguageDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Choose Language"),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                GestureDetector(
-                  child: const Text("English"),
-                  onTap: () {
-                    setState(() {
-                      language = 'English';
-                      Navigator.pop(context);
-                    });
-                  },
-                ),
-                const Padding(padding: EdgeInsets.all(8.0)),
-                GestureDetector(
-                  child: const Text("Español"),
-                  onTap: () {
-                    setState(() {
-                      language = 'Español';
-                      Navigator.pop(context);
-                    });
-                  },
-                ),
-                // Add more languages as needed
-              ],
-            ),
+          _buildListTile(
+            title: 'Supprimer le compte',
+            subtitle: '',
+            icon: Icons.delete,
+            onTap: () async {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Confirmation'),
+                    content: Text(
+                      'Êtes-vous sûr de vouloir supprimer votre compte ?',
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () async {
+                          try {
+                            final user = FirebaseAuth.instance.currentUser;
+                            if (user != null) {
+                              await user.delete();
+                              await FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(user.uid)
+                                  .delete();
+                              setState(() {
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) => LoginPage(),
+                                  ),
+                                );
+                                showMessage =
+                                    true; // Activer le message de succès
+                              });
+                            }
+                          } catch (error) {
+                            print(
+                                'Erreur lors de la suppression du compte: $error');
+                          }
+                        },
+                        child: Text('Oui'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('Non'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
           ),
-        );
-      },
+        ]);
+      }),
+      bottomNavigationBar: showMessage
+          ? BottomAppBar(
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                color: Colors.green, // Couleur du message de succès
+                child: Text(
+                  'Compte supprimé avec succès',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            )
+          : null,
     );
   }
 }
 
-class AccountSettingsPage extends StatelessWidget {
-  const AccountSettingsPage({super.key});
+Widget _buildSwitchTile({
+  required String title,
+  String? subtitle,
+  required bool value,
+  required ValueChanged<bool> onChanged,
+}) {
+  return SwitchListTile(
+    title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+    subtitle: subtitle != null ? Text(subtitle) : null,
+    value: value,
+    onChanged: onChanged,
+  );
+}
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Account Settings'),
-      ),
-      body: Center(
-        child: Text(
-          'Account settings page',
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-      ),
-    );
-  }
+ListTile _buildListTile({
+  required String title,
+  required String subtitle,
+  required IconData icon,
+  required VoidCallback onTap,
+}) {
+  return ListTile(
+    title: Text(title),
+    subtitle: Text(subtitle),
+    leading: Icon(icon),
+    onTap: onTap,
+  );
 }
