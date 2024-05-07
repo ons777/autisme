@@ -47,8 +47,8 @@ class _FamilyStoryState extends State<FamilyStory> {
     ["Sandwichs", "Salade de fruits"],
     ["Continuer"],
     ["Proposer une randonnée", "Proposer une visite au musée"],
-    ["Terminer"],
-    ["Terminer"],
+    ["Continuer"],
+    ["Continuer"],
     ["Terminer"],
     // Options après avoir choisi la salade de fruits
     ["Continuer"],
@@ -84,7 +84,7 @@ final Map<int, Map<int, int>> _nextSceneMap = {
           _storyIndex = nextSceneOptions[choiceIndex]!;
         }
       } else {
-        if (_storyIndex == 12) {
+        if (_storyIndex == 12|| _storyIndex == 11|| _storyIndex == 10) {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const StorySelectionPage()),
@@ -106,7 +106,7 @@ final Map<int, Map<int, int>> _nextSceneMap = {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Soccer Game Day'),
+        title: const Text('Family Day'),
         leading: _storyIndex > 0
             ? IconButton(
                 onPressed: _goBack,
@@ -151,7 +151,7 @@ final Map<int, Map<int, int>> _nextSceneMap = {
                           ),
                         ),
                         // Add an image widget below the text
-                        if (_storyIndex >= 0 && _storyIndex <= 10)
+                        if (_storyIndex >= 0 && _storyIndex <= 13)
                           Image.asset(
                             'assets/family0${_storyIndex + 1}.jpeg',
                             fit: BoxFit.cover,
