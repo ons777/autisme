@@ -18,212 +18,230 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isObscure = true;
-  String _userEmail = '';  // Define at class level for global access within class
-  String _userName = '';   // Define at class level for global access within class
+  String _userEmail =
+      ''; // Define at class level for global access within class
+  String _userName = ''; // Define at class level for global access within class
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/background.jpg'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Center(
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.8,
-            decoration: const BoxDecoration(
-              color: Color.fromRGBO(255, 255, 255, 0.7),
-              borderRadius: BorderRadius.all(Radius.circular(20)),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/background.jpg'),
+              fit: BoxFit.cover,
             ),
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const EspacePage()),
-                          );
-                        },
-                        child: const Icon(
-                          Icons.arrow_back,
-                          size: 24,
-                          color: Colors.black,
-                        ),
-                      ),
-                      Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 30),
-                          child: Image.asset(
-                            'assets/logo.jpg',
-                            width: 150,
-                          ),
-                        ),
-                      ),
-                      const Text(
-                        'E-mail',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      TextFormField(
-                        controller: _emailController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Veuillez entrer votre email';
-                          }
-                          return null;
-                        },
-                        decoration: const InputDecoration(
-                          hintText: 'Entrer votre Email',
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey),
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Color.fromARGB(255, 7, 155, 205)),
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      const Text(
-                        'Password',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      TextFormField(
-                        controller: _passwordController,
-                        validator: (value) {
-  if (value!.isEmpty) {
-    return 'Veuillez entrer votre mot de passe';
-  }
-  return null;
-},
-
-                        obscureText: _isObscure,
-                        decoration: InputDecoration(
-                          hintText: 'Entrez votre mot de passe',
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isObscure
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isObscure = !_isObscure;
-                              });
-                            },
-                          ),
-                          enabledBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey),
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10)),
-                          ),
-                          focusedBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Color.fromARGB(255, 7, 155, 205)),
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10)),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: TextButton(
-                          onPressed: () {
+          ),
+          child: Center(
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              decoration: const BoxDecoration(
+                color: Color.fromRGBO(255, 255, 255, 0.7),
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+              ),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ForgotPasswordPage()),
+                                  builder: (context) => EspacePage()),
                             );
                           },
-                          child: const Text(
-                            'Mot de passe oublié?',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                          child: const Icon(
+                            Icons.arrow_back,
+                            size: 24,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 30),
+                            child: Image.asset(
+                              'assets/logo.jpg',
+                              width: 150,
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              bool isChild = await isChildAccount(_emailController.text.trim());
-                              if (isChild) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text("Access denied for child accounts."),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                                return;
-                              }
-                              loginAttempt();
+                        const Text(
+                          'E-mail',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        TextFormField(
+                          controller: _emailController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Veuillez entrer votre email';
                             }
+                            return null;
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromARGB(255, 7, 155, 205),
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(20)),
+                          decoration: const InputDecoration(
+                            hintText: 'Entrer votre Email',
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                            elevation: 5,
-                            shadowColor: Colors.black,
-                          ),
-                          child: const Text(
-                            'se connecter',
-                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Color.fromARGB(255, 7, 155, 205)),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            TextButton(
+                        const SizedBox(height: 20),
+                        const Text(
+                          'Password',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        TextFormField(
+                          controller: _passwordController,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Veuillez entrer votre mot de passe';
+                            }
+                            return null;
+                          },
+                          obscureText: _isObscure,
+                          decoration: InputDecoration(
+                            hintText: 'Entrez votre mot de passe',
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _isObscure
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                              ),
                               onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => const CreateAccountPage()),
-                                );
+                                setState(() {
+                                  _isObscure = !_isObscure;
+                                });
                               },
-                              child: const Text(
-                                "Vous n'avez pas de compte ? S'inscrire",
-                                style: TextStyle(color: Color.fromARGB(255, 7, 155, 205), fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            enabledBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                            ),
+                            focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Color.fromARGB(255, 7, 155, 205)),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const ForgotPasswordPage()),
+                              );
+                            },
+                            child: const Text(
+                              'Mot de passe oublié?',
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: 20),
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 10),
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                bool isChild = await isChildAccount(
+                                    _emailController.text.trim());
+                                if (isChild) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          "Access denied for child accounts."),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                  return;
+                                }
+                                loginAttempt();
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 7, 155, 205),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(20)),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 50, vertical: 15),
+                              elevation: 5,
+                              shadowColor: Colors.black,
+                            ),
+                            child: const Text(
+                              'se connecter',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const CreateAccountPage()),
+                                  );
+                                },
+                                child: const Text(
+                                  "Vous n'avez pas de compte ? S'inscrire",
+                                  style: TextStyle(
+                                      color: Color.fromARGB(255, 7, 155, 205),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -236,7 +254,8 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> loginAttempt() async {
     try {
-      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      final userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
@@ -253,7 +272,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> fetchUserData(String userId) async {
-    final DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    final DocumentSnapshot<Map<String, dynamic>> snapshot =
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
     if (snapshot.exists) {
       setState(() {
         _userEmail = snapshot.data()?['email'] ?? '';
@@ -285,7 +305,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<bool> isChildAccount(String email) async {
-    final querySnapshot = await FirebaseFirestore.instance.collection('enfants').where('email', isEqualTo: email).get();
-    return querySnapshot.docs.isNotEmpty;  // Returns true if user is found in 'enfants'
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('enfants')
+        .where('email', isEqualTo: email)
+        .get();
+    return querySnapshot
+        .docs.isNotEmpty; // Returns true if user is found in 'enfants'
   }
 }
