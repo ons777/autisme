@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
-
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login.dart';
 
 class CreateAccountPage extends StatefulWidget {
-  const CreateAccountPage({super.key});
+  const CreateAccountPage({Key? key}) : super(key: key);
 
   @override
   _CreateAccountPageState createState() => _CreateAccountPageState();
@@ -38,7 +36,8 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+     return MaterialApp(
+    home:  Scaffold(
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -63,7 +62,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       onTap: () {
                         Navigator.pop(context);
                       },
-                      child: const Icon(
+                      child: Icon(
                         Icons.arrow_back,
                         size: 24,
                         color: Colors.black,
@@ -122,11 +121,11 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                             });
                           },
                         ),
-                        enabledBorder: const OutlineInputBorder(
+                        enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.grey),
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
-                        focusedBorder: const OutlineInputBorder(
+                        focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
                               color: Color.fromARGB(255, 7, 155, 205)),
                           borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -150,11 +149,11 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                             });
                           },
                         ),
-                        enabledBorder: const OutlineInputBorder(
+                        enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.grey),
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
-                        focusedBorder: const OutlineInputBorder(
+                        focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
                               color: Color.fromARGB(255, 7, 155, 205)),
                           borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -283,7 +282,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
           ),
         ),
       ),
-    );
+      ), );
   }
 
   String getRandomProfilePicture() {
