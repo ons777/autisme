@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'login.dart';
+import 'login_admin.dart';
 import 'loginenfant.dart';
 
 void main() {
@@ -44,6 +45,21 @@ class EspacePage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AdminLoginPage(),
+                            ),
+                          );
+                        },
+                        child: const Icon(
+                          Icons.monitor_heart,
+                          size: 24,
+                          color: Colors.black,
+                        ),
+                      ),
                       Center(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 30),
