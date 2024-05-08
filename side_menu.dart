@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'calender.dart';
 import 'login.dart';
 import 'quizParents .dart';
 import 'welcome.dart';
@@ -164,6 +165,19 @@ class _SideMenuPageState extends State<SideMenuPage> {
     return 'assets/$randomPicture';
   }
 
+  // Fonction de déconnexion
+  Future<void> _signOut() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+    } catch (e) {
+      print('Erreur lors de la déconnexion: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeModel>(builder: (context, themeProvider, child) {
@@ -234,7 +248,7 @@ class _SideMenuPageState extends State<SideMenuPage> {
                 leading: Icon(Icons.person,
                     color:
                         themeProvider.isDarkMode ? Colors.white : Colors.black),
-                title: Text('Profil',
+                title: Text('Profile',
                     style: TextStyle(
                         color: themeProvider.isDarkMode
                             ? Colors.white
@@ -251,7 +265,7 @@ class _SideMenuPageState extends State<SideMenuPage> {
                 leading: Icon(Icons.folder,
                     color:
                         themeProvider.isDarkMode ? Colors.white : Colors.black),
-                title: Text('Resources',
+                title: Text('Ressources',
                     style: TextStyle(
                         color: themeProvider.isDarkMode
                             ? Colors.white
@@ -277,6 +291,23 @@ class _SideMenuPageState extends State<SideMenuPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const QuizPage()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.folder,
+                    color:
+                        themeProvider.isDarkMode ? Colors.white : Colors.black),
+                title: Text('Événements',
+                    style: TextStyle(
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.black)),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const CalendarPage()),
                   );
                 },
               ),
