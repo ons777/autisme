@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'quizFamily.dart';
 import 'quizFriends.dart';
 import 'quizSchool.dart';
 import 'quizSports.dart'; // Import the QuizFriendsPage
@@ -43,9 +44,9 @@ class StorySelectionPage extends StatelessWidget {
             itemBuilder: (BuildContext context, int index) {
               List<Map<String, String>> stories = [
                 {"title": "Friendship Story", "imagePath": "assets/friendquiz.jpeg"},
-                {"title": "school Story", "imagePath": "assets/schoolquiz.jpeg"},
+                {"title": "Family Story", "imagePath": "assets/familyquiz.jpeg"},
                 {"title": "Sport Story", "imagePath": "assets/sportquiz.jpeg"},
-                {"title": "Family Story", "imagePath": "assets/familyquiz.jpeg"}
+                {"title": "school Story", "imagePath": "assets/schoolquiz.jpeg"},
               ];
 
               return StoryCard(
@@ -57,13 +58,15 @@ class StorySelectionPage extends StatelessWidget {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const FriendshipStory()));
                   }
                   if (stories[index]['title'] == "Family Story") {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const FriendshipStory()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const FamilyStory()));
                   }
                   if (stories[index]['title'] == "Sport Story") {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const SoccerStory()));
-                  } else {
+                  }
+                  if (stories[index]['title'] == "School Story") {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const SchoolStory()));
                   }
+
                 },
               );
             },
