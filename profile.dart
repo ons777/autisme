@@ -2,149 +2,157 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'settings.dart';
-import 'thememodel.dart';
-import 'package:provider/provider.dart';
+
+import 'account.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(
-    ChangeNotifierProvider<ThemeModel>(
-      create: (_) => ThemeModel(),
-      child: MaterialApp(
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          fontFamily: 'Montserrat',
-        ),
-        home: ProfilePage(),
-      ),
-    ),
-  );
+  runApp(const MyApp());
 }
 
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({Key? key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final userUID = FirebaseAuth.instance.currentUser?.uid;
-    return Consumer<ThemeModel>(
-      builder: (context, themeProvider, child) {
-        return Scaffold(
-          backgroundColor:
-              themeProvider.isDarkMode ? Colors.grey[900] : Colors.grey[200],
-          appBar: AppBar(
-            title: Text(
-              'Profile',
-              style: TextStyle(
-                  color:
-                      themeProvider.isDarkMode ? Colors.white : Colors.black),
-            ),
-            backgroundColor:
-                themeProvider.isDarkMode ? Colors.grey[900] : Colors.grey[200],
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back,
-                  color:
-                      themeProvider.isDarkMode ? Colors.white : Colors.black),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-            actions: [
-              IconButton(
-                icon: Icon(Icons.settings,
-                    color:
-                        themeProvider.isDarkMode ? Colors.white : Colors.black),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const SettingsPage()),
-                  );
-                },
-              ),
-            ],
-          ),
-          body: FutureBuilder<DocumentSnapshot>(
-            future: FirebaseFirestore.instance
-                .collection('users')
-                .doc(userUID)
-                .get(),
-            builder: (context, userSnapshot) {
-              if (userSnapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (userSnapshot.hasError) {
-                return Center(child: Text("Error: ${userSnapshot.error}"));
-              }
-              if (!userSnapshot.hasData || !userSnapshot.data!.exists) {
-                return const Center(child: Text("User does not exist"));
-              }
-              var userData = userSnapshot.data!.data() as Map<String, dynamic>;
+    return MaterialApp(
+      title: 'User Profile',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: const ProfilePage(),
+    );
+  }
+}
 
-              // Fetch child's data using the parent's email
-              final parentEmail = userData['email'] as String;
-              return FutureBuilder<QuerySnapshot>(
-                future: FirebaseFirestore.instance
-                    .collection('enfants')
-                    .where('emailParent', isEqualTo: parentEmail)
-                    .get(),
-                builder: (context, enfantSnapshot) {
-                  if (enfantSnapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (enfantSnapshot.hasError) {
-                    return Center(
-                        child: Text("Error: ${enfantSnapshot.error}"));
-                  }
-                  final QuerySnapshot<Map<String, dynamic>> querySnapshot =
-                      enfantSnapshot.data!
-                          as QuerySnapshot<Map<String, dynamic>>;
-                  if (querySnapshot.docs.isEmpty) {
-                    return const Center(child: Text("Child does not exist"));
-                  }
-                  return ListView(
-                    children: [
-                      _buildHeader(context, userData),
-                      for (var doc in querySnapshot.docs)
-                        _buildUserInfo(doc.data(), context),
-                    ],
-                  );
-                },
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  Future<DocumentSnapshot> fetchUserData(String uid) {
+    return FirebaseFirestore.instance.collection('users').doc(uid).get();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      return Scaffold(
+        backgroundColor: Colors.grey[200],
+        appBar: AppBar(
+          title: const Text('Profil'),
+        ),
+        body: const Center(child: Text("Utilisateur non authentifié")),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.grey[200],
+      appBar: AppBar(
+        title: const Text('Profil'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const UserProfile()),
               );
+              setState(() {}); // Trigger refresh on returning
             },
           ),
-        );
-      },
+        ],
+      ),
+      body: FutureBuilder<DocumentSnapshot>(
+        future: fetchUserData(user.uid),
+        builder: (context, userSnapshot) {
+          if (userSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (userSnapshot.hasError) {
+            return Center(child: Text("Erreur: ${userSnapshot.error}"));
+          }
+          if (!userSnapshot.hasData || !userSnapshot.data!.exists) {
+            return const Center(child: Text("L'utilisateur n'existe pas"));
+          }
+
+          var userData = userSnapshot.data!.data() as Map<String, dynamic>;
+          final parentEmail = userData['email'] as String?;
+
+          return parentEmail == null
+              ? const Center(child: Text("Email du parent non disponible"))
+              : FutureBuilder<QuerySnapshot>(
+                  future: FirebaseFirestore.instance
+                      .collection('enfants')
+                      .where('emailParent', isEqualTo: parentEmail)
+                      .get(),
+                  builder: (context, enfantSnapshot) {
+                    if (enfantSnapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (enfantSnapshot.hasError) {
+                      return Center(child: Text("Erreur: ${enfantSnapshot.error}"));
+                    }
+
+                    final List<QueryDocumentSnapshot> enfantsDocs = enfantSnapshot.data?.docs ?? [];
+                    return ListView(
+                      children: [
+                        _buildHeader(context, userData),
+                        const SizedBox(height: 20),
+                        for (var doc in enfantsDocs) _buildUserInfo(doc.data() as Map<String, dynamic>),
+                      ],
+                    );
+                  },
+                );
+        },
+      ),
     );
   }
 
   Widget _buildHeader(BuildContext context, Map<String, dynamic> userData) {
-    final themeProvider = Provider.of<ThemeModel>(context);
+    final String? profilePictureUrl = userData['profilePictureUrl'];
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 40),
       decoration: BoxDecoration(
-        color: themeProvider.isDarkMode
-            ? Colors.grey[900]
-            : Theme.of(context).primaryColorDark,
+        gradient: LinearGradient(
+          colors: [Theme.of(context).primaryColor, Theme.of(context).primaryColorDark],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(40)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 3,
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircleAvatar(
-            radius: 50,
-            backgroundImage: NetworkImage(userData['profilePictureUrl'] ?? ''),
-            backgroundColor: Colors.white,
+            radius: 70.0,
+            backgroundImage: profilePictureUrl != null && profilePictureUrl.isNotEmpty
+                ? NetworkImage(profilePictureUrl)
+                : null,
+            backgroundColor: Colors.grey.withOpacity(0.3),
           ),
           const SizedBox(width: 20),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                userData['name'] ?? 'Name unavailable',
+                userData['name'] ?? 'Nom indisponible',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -153,7 +161,7 @@ class ProfilePage extends StatelessWidget {
               ),
               const SizedBox(height: 5),
               Text(
-                userData['email'] ?? 'Email unavailable',
+                userData['email'] ?? 'Email indisponible',
                 style: TextStyle(
                   color: Colors.white.withAlpha(200),
                   fontSize: 16,
@@ -166,55 +174,64 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildUserInfo(Map<String, dynamic> enfantData, BuildContext context) {
-    final themeProvider = Provider.of<ThemeModel>(context);
+  Widget _buildUserInfo(Map<String, dynamic> enfantData) {
     return Padding(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Card(
-        color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(15),
         ),
+        elevation: 8,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Child Information',
-                style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color:
-                        themeProvider.isDarkMode ? Colors.white : Colors.black),
+              const Text(
+                'Informations de l\'enfant',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.blueAccent),
               ),
-              const SizedBox(height: 16),
-              Text(
-                'Email: ${enfantData['emailenfant'] ?? 'No email available'}',
-                style: TextStyle(
-                    fontSize: 16,
-                    color:
-                        themeProvider.isDarkMode ? Colors.white : Colors.black),
-              ),
+              const Divider(),
               const SizedBox(height: 8),
-              Text(
-                'Password: ${enfantData['motDePasse'] ?? 'No password available'}',
-                style: TextStyle(
-                    fontSize: 16,
-                    color:
-                        themeProvider.isDarkMode ? Colors.white : Colors.black),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Pseudo: ${enfantData['pseudo'] ?? 'No pseudo available'}',
-                style: TextStyle(
-                    fontSize: 16,
-                    color:
-                        themeProvider.isDarkMode ? Colors.white : Colors.black),
-              ),
+              _buildInfoRow(Icons.person, 'Pseudo:', enfantData['pseudo']),
+              _buildInfoRow(Icons.email, 'Email:', enfantData['emailenfant']),
+              _buildInfoRow(Icons.password, 'Mot de passe:', enfantData['motDePasse']),
+              _buildInfoRow(Icons.calendar_today, 'Anniversaire:', enfantData['anniversaire']),
+              _buildInfoRow(Icons.school, 'Classe:', enfantData['classe']),
+              _buildInfoRow(Icons.color_lens, 'Couleur préférée:', enfantData['favoriteColor']),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String title, String? value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.blueAccent),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.blueAccent),
+                ),
+                Flexible(
+                  child: Text(
+                    value ?? 'Non disponible',
+                    style: const TextStyle(fontSize: 16),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
