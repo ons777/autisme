@@ -62,8 +62,8 @@ class _SettingsPageState extends State<SettingsPage> {
       body: Consumer<ThemeModel>(builder: (context, themeProvider, _) {
         return ListView(padding: const EdgeInsets.all(16.0), children: <Widget>[
           _buildSwitchTile(
-            title: 'Dark Mode',
-            subtitle: 'Enable dark theme for better night-time reading.',
+            title: 'Mode sombre',
+            subtitle: 'Activer le thème sombre pour une meilleure lecture nocturne.',
             value: themeProvider.isDarkMode,
             onChanged: (bool value) async {
               setState(() {
@@ -73,8 +73,8 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
           _buildSwitchTile(
-            title: 'Enable Notifications',
-            subtitle: 'Receive notifications for updates and announcements.',
+            title: 'Activer les notifications',
+            subtitle: 'Recevez des notifications pour les mises à jour et les annonces.',
             value: notificationEnabled,
             onChanged: (bool value) {
               setState(() {
@@ -83,8 +83,8 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
           _buildSwitchTile(
-            title: 'Show Activity Status',
-            subtitle: 'Let others see when you’re active.',
+            title: 'Afficher l’état de l’activité',
+            subtitle: 'Laissez les autres voir quand vous êtes actif.',
             value: showActivityStatus,
             onChanged: (bool value) {
               setState(() {
@@ -93,8 +93,8 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
           _buildListTile(
-            title: 'Account',
-            subtitle: 'Manage your account settings',
+            title: 'Compte',
+            subtitle: 'Gérer les paramètres de votre compte',
             icon: Icons.person,
             onTap: () {
               Navigator.push(
