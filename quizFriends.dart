@@ -1,7 +1,5 @@
-// ignore_for_file: library_private_types_in_public_api, file_names
-
+// ignore_for_file: library_private_types_in_public_api, file_names, depend_on_referenced_packages
 import 'package:flutter/material.dart';
-
 import 'ppp.dart';
 
 void main() {
@@ -17,67 +15,80 @@ class FriendshipStory extends StatefulWidget {
 
 class _FriendshipStoryState extends State<FriendshipStory> {
   int _storyIndex = 0;
-  final List<int> _previousScenes = []; // Track previous scenes
+  final List<int> _previousScenes = []; 
 
 final List<String> _storyTexts = [
-  "C'est un jour d'été ensoleillé. Tu te réveilles plein d'enthousiasme car tu as prévu de passer la journée avec ton meilleur ami. Que décides-tu de faire ?",
-  "Tu reçois un message de ton ami disant qu'il a découvert une vieille carte au trésor. Il propose de partir à l'aventure ensemble pour la trouver. Que réponds-tu ?",
-  "Vous vous rendez à l'endroit indiqué sur la carte et commencez à explorer. Soudain, vous arrivez à un carrefour. Quel chemin choisissez-vous ?",
-  "Vous optez pour le chemin de gauche, attirés par le bruit d'une cascade au loin. En vous approchant, vous découvrez une belle cascade cachée dans la forêt. Que faites-vous ?",
-  "Vous décidez de vous approcher de la cascade pour explorer les environs. Pendant que vous êtes là, vous trouvez un chemin menant à une grotte mystérieuse derrière la cascade. Que décidez-vous de faire ?",
-  "Vous décidez d'entrer dans la grotte pour voir ce qu'il y a à l'intérieur. À mesure que vous avancez, vous découvrez des peintures rupestres anciennes sur les parois de la grotte. Que ressentez-vous en voyant cela ?",
-  "Vous êtes fascinés par les peintures rupestres et décidez d'explorer plus en profondeur. Au fond de la grotte, vous trouvez un coffre au trésor rempli de bijoux étincelants et de pièces anciennes. Que faites-vous avec le trésor ?",
-  "Vous décidez de laisser le trésor là où vous l'avez trouvé, convaincus que ce qui compte le plus, ce sont les aventures que vous avez partagées ensemble. Vous quittez la grotte, heureux de l'expérience que vous avez vécue.",
+  "Toi et ton meilleur amie décidez de partir à l'aventure. Vous aimez explorer et vous avez décidé de découvrir un nouveau sentier de randonnée.",
+  "Au début de la randonnée, vous arrivez à un carrefour. Quel chemin choisissez-vous ?",
+  "Vous optez pour le chemin de gauche. Le chemain étè difficile, mais vous vous aidez mutuellement et profitez du voyage.",
+  "Vous prenez le chemin de droite. C'est pittoresque avec une belle vue. Vous prenez un moment pour admirer la nature.",
+  "Après une longue marche, vous trouvez un endroit parfait pour pique-niquer. Vous partagez des histoires en mangeant vos snacks préférés.",
+  "Vous décidez de jouer à un jeu. En jouant, vous repérez un petit lapin piégé dans un buisson. Que faites-vous ?",
+  "Vous décidez de libérer le lapin. Avec précaution, vous parvenez à le libérer. Il s'enfuit dans la forêt et vous ressentez un soulagement.",
+  "Vous décidez de continuer le pique-nique. Après un moment, vous remarquez que le lapin s'est libéré d'eux-mêmes.",
+  "Rafraîchis après le pique-nique, vous continuez la randonnée. Vous découvrez une belle cascade.",
+  "À la fin de la journée, vous revenez, partageant des histoires et faisant des plans pour la prochaine aventure.",
+  "Vous célébrez le sauvetage, fiers et heureux de votre gentillesse.",
+  "Après la randonnée difficile, vous trouvez un endroit paisible près d'un ruisseau. C'est parfait pour le pique-nique. En déballant vos snacks, vous profitez du bruit apaisant de l'eau et des feuilles.",
+  "Inspirés par le paysage, vous prenez des photos pour garder des souvenirs de l'aventure.",
+  "Après que le lapin se soit libéré, vous discutez de votre soulagement et du respect pour la nature.",
+  "À la tombée de la nuit, vous rentrez chez vous, réfléchissant à l'aventure de la journée.",
 ];
 
-final List<List<String>> _choices = [
-  ["Continuer"],
-  ["Accepter avec enthousiasme", "Décliner poliment"],
-  ["Prendre le chemin de gauche", "Prendre le chemin de droite"],
-  ["Approcher de la cascade", "Continuer à explorer la forêt"],
-  ["Entrer dans la grotte", "Rester à admirer la cascade"],
-  ["Continuer"],
-  ["Explorer le trésor", "Laisser le trésor et partir"],
-  ["Continuer"],
-];
 
-final Map<int, Map<int, int>> _nextSceneMap = {
-  1: {0: 2, 1: 7},
-  2: {0: 3, 1: 7},
-  3: {0: 4, 1: 4},
-  4: {0: 5, 1: 5},
-  5: {0: 6, 1: 6},
-  6: {0: 7, 1: 7},
-  7: {0: 8, 1: 8},
-};
+  final List<List<String>> _choices = [
+    ["Commencer l'aventure !"],
+    ["Prendre le chemin de gauche", "Prendre le chemin de droite"],
+    ["Reposez-vous un moment", "Continuer la randonnée"],
+    ["Prendre quelques photos", "Continuer la randonnée"],
+    ["Jouer à un jeu", "Continuer le pique-nique"],
+    ["Aider le lapin", "Continuer le pique-nique"],
+    ["Célébrer le sauvetage", "Continuer la randonnée"],
+    ["Discuter de l'incident", "Continuer la randonnée"],
+    ["Profiter de la cascade", "Continuer la randonnée"],
+    ["Planifier la prochaine aventure", "Terminer la journée"],
+    ["Fin"],
+    ["Fin"],
+    ["Fin"],
+    ["Fin"],
+    ["Fin"],
+    ["Fin"],
+  ];
 
-
+  final Map<int, Map<int, int>> _nextSceneMap = {
+    0: {0: 1}, 
+    1: {0: 2, 1: 3},    // After choosing path
+    2: {0: 4, 1: 4},    // After left path
+    3: {0: 12, 1: 4},    // After right path
+    4: {0: 5, 1: 11},    // After picnic
+    5: {0: 6, 1: 7},    // After creature decision
+    6: {0: 10, 1: 8},    // After helping creature
+    7: {0: 13, 1: 8},    // After ignoring creature
+    8: {0: 9, 1: 9},    // After waterfall
+    9: {0: 14, 1: 15},  // End
+    
+  };
 
 
 void _nextScene(int choiceIndex) {
     setState(() {
-      if (_storyIndex < _storyTexts.length - 1) {
-        // Store current scene index in the list of previous scenes
-        _previousScenes.add(_storyIndex);
+      _previousScenes.add(_storyIndex);
 
-        if (_nextSceneMap.containsKey(_storyIndex)) {
-          final nextSceneOptions = _nextSceneMap[_storyIndex];
-          if (nextSceneOptions != null && nextSceneOptions.containsKey(choiceIndex)) {
-            _storyIndex = nextSceneOptions[choiceIndex]!;
-          }
-        } else {
-          _storyIndex++;
+      if (_nextSceneMap.containsKey(_storyIndex)) {
+        final nextSceneOptions = _nextSceneMap[_storyIndex];
+        if (nextSceneOptions != null && nextSceneOptions.containsKey(choiceIndex)) {
+          _storyIndex = nextSceneOptions[choiceIndex]!;
         }
       } else {
-        // End of the story
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const StorySelectionPage()),
-        );
+        if (_storyIndex == 15 || _storyIndex == 14 || _storyIndex == 13 || _storyIndex == 12|| _storyIndex == 11|| _storyIndex == 10) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const StorySelectionPage()),
+          );
+        }
       }
     });
   }
-
   void _goBack() {
     setState(() {
       if (_previousScenes.isNotEmpty) {
@@ -117,7 +128,7 @@ void _nextScene(int choiceIndex) {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withOpacity(0.8),
                       borderRadius: BorderRadius.circular(10.0),
                       boxShadow: const [
                         BoxShadow(
@@ -129,9 +140,23 @@ void _nextScene(int choiceIndex) {
                       ],
                     ),
                     padding: const EdgeInsets.all(20.0),
-                    child: Text(
-                      _storyTexts[_storyIndex],
-                      style: const TextStyle(fontSize: 20.0),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _storyTexts[_storyIndex],
+                            style: const TextStyle(fontSize: 20.0),
+                          ),
+                        ),
+                        // Add an image widget below the text
+                        if (_storyIndex >= 0 && _storyIndex <= 14)
+                          Image.asset(
+                            'assets/friend0${_storyIndex + 1}.jpeg',
+                            fit: BoxFit.cover,
+                            width: MediaQuery.of(context).size.width,
+                            height: 200.0,
+                          ),
+                      ],
                     ),
                   ),
                 ),
@@ -146,7 +171,7 @@ void _nextScene(int choiceIndex) {
                       final index = entry.key;
                       final choice = entry.value;
                       return Padding(
-                        padding: EdgeInsets.only(bottom: index == 0 ? 10.0 : 0.0),
+                        padding: const EdgeInsets.only(bottom: 10.0),
                         child: ElevatedButton(
                           onPressed: () => _nextScene(index),
                           style: ElevatedButton.styleFrom(
