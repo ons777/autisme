@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,18 +10,23 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: UserProfile(),
+    return MaterialApp(
+      title: 'Account Settings',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: const UserProfile(),
     );
   }
 }
 
 class UserProfile extends StatefulWidget {
-  const UserProfile({Key? key}) : super(key: key);
+  const UserProfile({super.key});
 
   @override
   State<UserProfile> createState() => _UserProfileState();
@@ -30,190 +34,160 @@ class UserProfile extends StatefulWidget {
 
 class _UserProfileState extends State<UserProfile> {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth auth = FirebaseAuth.instance;
 
-  late String name = '';
-  String email = '';
-  String sexe = '';
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController newPasswordController = TextEditingController();
   String profileImageUrl = '';
-  TextEditingController nameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController villeController = TextEditingController();
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    newPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
-    getUserData();
+    loadUserData();
   }
 
-  Future<void> getUserData() async {
-    try {
-      final user = _auth.currentUser;
-      if (user != null) {
-        final querySnapshot = await firestore
-            .collection('users')
-            .where('email', isEqualTo: user.email)
-            .get();
-        if (querySnapshot.docs.isNotEmpty) {
-          final userDoc = querySnapshot.docs.first;
-          final data = userDoc.data();
-          setState(() {
-            name = data['name'] ?? '';
-            email = data['email'] ?? '';
-            profileImageUrl = data['profileImageUrl'] ?? '';
-            villeController.text = data['ville'] ?? '';
-          });
-          print('User data retrieved: $data');
-        } else {
-          print('User document not found!');
-        }
-      } else {
-        print('User not authenticated!');
-      }
-    } catch (e) {
-      print('Error fetching user data: $e');
-    }
-  }
+  void loadUserData() async {
+    final user = auth.currentUser;
 
-  Future<void> updateUserField(String fieldName, String newValue) async {
-    final user = _auth.currentUser;
     if (user != null) {
-      final docRef = firestore.collection('users').doc(user.uid);
-      await docRef.update({fieldName: newValue});
-      setState(() {
-        if (fieldName == 'name') {
-          name = newValue;
-        } else if (fieldName == 'email') {
-          email = newValue;
-        } else if (fieldName == 'ville') {
-          villeController.text = newValue;
-        }
-      });
-    } else {
-      print('User not authenticated!');
+      final DocumentSnapshot userSnapshot = await firestore.collection('users').doc(user.uid).get();
+      final Map<String, dynamic>? userData = userSnapshot.data() as Map<String, dynamic>?;
+
+      if (userData != null) {
+        nameController.text = userData['name'] ?? '';
+        profileImageUrl = userData['profilePictureUrl'] ?? '';
+        setState(() {}); // Trigger a rebuild to show the image
+      }
     }
+  }
+
+  Future<void> updateProfile(String userId) async {
+    final user = auth.currentUser;
+    if (user != null) {
+      try {
+        // Update name in Firestore
+        await firestore.collection('users').doc(userId).update({
+          'name': nameController.text,
+        });
+
+        // Update password if the new password is provided
+        if (newPasswordController.text.isNotEmpty) {
+          await user.updatePassword(newPasswordController.text);
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profil mis à jour avec succès!')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur lors de la mise à jour du profil: $e')),
+        );
+      }
+    }
+  }
+
+  Widget buildTextField(String label, TextEditingController controller, IconData icon, Color borderColor) {
+    return TextFormField(
+      controller: controller,
+      obscureText: label.toLowerCase().contains('mot de passe'), // Obscure if it's the password field
+      decoration: InputDecoration(
+        prefixIcon: Icon(icon, color: borderColor),
+        labelText: label,
+        labelStyle: TextStyle(color: borderColor),
+        filled: true,
+        fillColor: Colors.white,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: borderColor),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: borderColor, width: 2),
+        ),
+      ),
+      style: TextStyle(color: borderColor),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final user = auth.currentUser;
+
+    if (user == null) {
+      return Scaffold(
+        backgroundColor: Colors.grey[200],
+        appBar: AppBar(
+          title: const Text('Compte'),
+        ),
+        body: const Center(child: Text("Utilisateur non authentifié")),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mon Profil'),
+        title: const Text('Compte'),
+        backgroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 20.0),
-            Stack(
-              alignment: Alignment.bottomRight,
-              children: [
-                CircleAvatar(
-                  radius: 70.0,
-                  backgroundImage: NetworkImage(profileImageUrl),
-                ),
-                IconButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Sélectionnez une option'),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text('Prendre une photo'),
-                            ),
-                            const SizedBox(height: 10),
-                            ElevatedButton(
-                              onPressed: () async {
-                                Navigator.pop(context);
-                                final XFile? image = await ImagePicker()
-                                    .pickImage(source: ImageSource.camera);
-                                if (image != null) {
-                                  // Implémenter la logique pour gérer l'image capturée
-                                }
-                              },
-                              child: const Text('Ouvrir la galerie'),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.edit),
-                ),
-              ],
+      body: Stack(
+        children: [
+          // Background Image
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/Dream_clouds.jpeg'),
+                fit: BoxFit.cover,
+              ),
             ),
-            const SizedBox(height: 30.0),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          ),
+          // Content
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
               child: Column(
                 children: [
-                  TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Nom',
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide:
-                            BorderSide(color: Color.fromARGB(255, 7, 155, 205)),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                    ),
-                    controller: nameController,
+                  const SizedBox(height: 20.0),
+                  CircleAvatar(
+                    radius: 70.0,
+                    backgroundImage: profileImageUrl.isNotEmpty ? NetworkImage(profileImageUrl) : null,
+                    backgroundColor: Colors.grey.withOpacity(0.3),
+                    child: profileImageUrl.isEmpty
+                        ? const Icon(Icons.person, size: 70, color: Colors.white)
+                        : null,
                   ),
-                  const SizedBox(height: 8.0),
-                  TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Email',
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide:
-                            BorderSide(color: Color.fromARGB(255, 7, 155, 205)),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                  const SizedBox(height: 30.0),
+                  buildTextField('Nom', nameController, Icons.person, Colors.blueAccent),
+                  const SizedBox(height: 16.0),
+                  buildTextField('Nouveau mot de passe', newPasswordController, Icons.lock, Colors.blueAccent),
+                  const SizedBox(height: 30.0),
+                  ElevatedButton(
+                    onPressed: () => updateProfile(user.uid),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    child: const Text(
+                      'Sauvegarder',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
                       ),
                     ),
-                    controller: emailController,
-                  ),
-                  const SizedBox(height: 8.0),
-                  TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Ville',
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide:
-                            BorderSide(color: Color.fromARGB(255, 7, 155, 205)),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                    ),
-                    controller: villeController,
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          updateUserField('name', nameController.text);
-          updateUserField('email', emailController.text);
-          updateUserField('ville', villeController.text);
-        },
-        child: const Icon(Icons.refresh),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
