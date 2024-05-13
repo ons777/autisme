@@ -3,6 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'localization.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -15,7 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Account Settings',
+      title: 'Paramétre',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -83,11 +85,13 @@ class _UserProfileState extends State<UserProfile> {
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profil mis à jour avec succès!')),
+           SnackBar(content: Text(
+                          AppLocalization.of(context).translate('Profil mis à jour avec succès!')),),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur lors de la mise à jour du profil: $e')),
+          SnackBar(content: Text(
+                          AppLocalization.of(context).translate('Erreur lors de la mise à jour du profil: $e')),),
         );
       }
     }
@@ -124,15 +128,18 @@ class _UserProfileState extends State<UserProfile> {
       return Scaffold(
         backgroundColor: Colors.grey[200],
         appBar: AppBar(
-          title: const Text('Compte'),
+          title:  Text(
+                          AppLocalization.of(context).translate('Compte'),),
         ),
-        body: const Center(child: Text("Utilisateur non authentifié")),
+        body:  Center(child: Text(
+                          AppLocalization.of(context).translate("Utilisateur non authentifié")),),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Compte'),
+        title:  Text(
+                          AppLocalization.of(context).translate('Compte'),),
         backgroundColor: Colors.white,
       ),
       body: Stack(
@@ -162,9 +169,11 @@ class _UserProfileState extends State<UserProfile> {
                         : null,
                   ),
                   const SizedBox(height: 30.0),
-                  buildTextField('Nom', nameController, Icons.person, Colors.blueAccent),
+                  buildTextField(AppLocalization.of(context)
+                                      .translate('Nom'), nameController, Icons.person, Colors.blueAccent),
                   const SizedBox(height: 16.0),
-                  buildTextField('Nouveau mot de passe', newPasswordController, Icons.lock, Colors.blueAccent),
+                  buildTextField(AppLocalization.of(context)
+                                      .translate('Nouveau mot de passe'), newPasswordController, Icons.lock, Colors.blueAccent),
                   const SizedBox(height: 30.0),
                   ElevatedButton(
                     onPressed: () => updateProfile(user.uid),
@@ -173,14 +182,14 @@ class _UserProfileState extends State<UserProfile> {
                       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: const Text(
-                      'Sauvegarder',
-                      style: TextStyle(
+                    child: Text(
+                                  AppLocalization.of(context)
+                                      .translate("Sauvegarder"),
+                                  style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
+                        fontSize: 18,),
+                                ),
                   ),
                 ],
               ),
